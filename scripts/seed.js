@@ -5,7 +5,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("Starting Smart Menu Cloud Database Seeding...");
+  console.log("Starting Smart Menu Cloud Database Seeding on Supabase...");
 
   // 1. Seed Tenants
   const elPrince = await prisma.tenant.upsert({
@@ -54,7 +54,30 @@ async function main() {
     },
   });
 
-  console.log("Seeded Tenants:", elPrince.name, ",", aromaCafe.name);
+  const cairoGrill = await prisma.tenant.upsert({
+    where: { slug: "cairo-grill" },
+    update: {},
+    create: {
+      name: "مشويات كايرو جريل (منتهي)",
+      slug: "cairo-grill",
+      businessType: "restaurant",
+      stationLabel: "مطبخ الشواية",
+      orderPointLabel: "طاولة",
+      ownerName: "محمود زهران",
+      ownerPhone: "01099887766",
+      primaryColor: "#DC2626",
+      themeMode: "warm",
+      currency: "ج.م",
+      taxPercentage: 14,
+      serviceFeePercentage: 10,
+      planTier: "starter",
+      subscriptionStatus: "expired",
+      subscriptionExpiry: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      logoUrl: "https://images.unsplash.com/photo-1544025162-d76694265947?w=160",
+    },
+  });
+
+  console.log("Seeded Tenants:", elPrince.name, ",", aromaCafe.name, ",", cairoGrill.name);
 
   // 2. Seed Users
   await prisma.user.upsert({
@@ -80,8 +103,94 @@ async function main() {
     },
   });
 
-  console.log("Seeded Super Admin and Tenant Admins.");
-  console.log("Database Seeding Completed Successfully! 🚀");
+  await prisma.user.upsert({
+    where: { email: "cashier@smartmenu.app" },
+    update: {},
+    create: {
+      name: "سعيد النجار (كاشير)",
+      email: "cashier@smartmenu.app",
+      role: "CASHIER",
+      tenantId: elPrince.id,
+      phone: "01122334455",
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { email: "chef@smartmenu.app" },
+    update: {},
+    create: {
+      name: "الشيف رمزي (محطة التجهيز)",
+      email: "chef@smartmenu.app",
+      role: "KITCHEN",
+      tenantId: elPrince.id,
+      phone: "01233445566",
+    },
+  });
+
+  console.log("Seeded Users across all roles (SUPER_ADMIN, TENANT_ADMIN, CASHIER, KITCHEN).");
+
+  // 3. Seed Categories & Products for El Prince
+  const catMeats = await prisma.category.create({
+    data: {
+      tenantId: elPrince.id,
+      name: "الأطباق الرئيسية واللحوم",
+      sortOrder: 1,
+    },
+  });
+
+  const catTajin = await prisma.category.create({
+    data: {
+      tenantId: elPrince.id,
+      name: "الطواجن الفخارية",
+      sortOrder: 2,
+    },
+  });
+
+  await prisma.product.createMany({
+    data: [
+      {
+        tenantId: elPrince.id,
+        categoryId: catMeats.id,
+        name: "كبدة إسكندراني باللية الضاني",
+        description: "كبدة طازجة متبلة بالثوم والفلفل الحار والخلطة السرية مع شرائح الفلفل والليمون الساخن.",
+        price: 185,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600&auto=format&fit=crop&q=80",
+        isAvailable: true,
+        stockQuantity: 24,
+        isBestSeller: true,
+        isSpicy: true,
+        prepTimeMinutes: 12,
+        calories: 520,
+      },
+      {
+        tenantId: elPrince.id,
+        categoryId: catTajin.id,
+        name: "طاجن عكاوي بالبصل القاورما",
+        description: "عكاوي بلدي مطهوة ببطء في الفرن الحجري داخل فخارة مغطاة بالعجين ومتبلة ببهارات البرنس.",
+        price: 295,
+        image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600&auto=format&fit=crop&q=80",
+        isAvailable: true,
+        stockQuantity: 18,
+        isBestSeller: true,
+        prepTimeMinutes: 20,
+        calories: 680,
+      },
+    ],
+  });
+
+  // 4. Seed Tables
+  await prisma.tableInfo.createMany({
+    data: [
+      { tenantId: elPrince.id, number: "1", name: "طاولة 1", capacity: 4, status: "available" },
+      { tenantId: elPrince.id, number: "2", name: "طاولة 2", capacity: 2, status: "available" },
+      { tenantId: elPrince.id, number: "3", name: "طاولة 3", capacity: 4, status: "available" },
+      { tenantId: elPrince.id, number: "4", name: "طاولة 4", capacity: 6, status: "available" },
+      { tenantId: elPrince.id, number: "VIP", name: "صالة VIP", capacity: 12, status: "available" },
+    ],
+  });
+
+  console.log("Seeded Categories, Products, and Tables on Supabase.");
+  console.log("All data successfully seeded into live Supabase PostgreSQL! 🚀");
 }
 
 main()
