@@ -1,0 +1,277 @@
+// Smart Menu - Multi-Tenant SaaS Prisma Schema
+// Configured for Free PostgreSQL Cloud Databases: Supabase / Neon / Render
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  TENANT_ADMIN
+  CASHIER
+  KITCHEN
+  CUSTOMER
+}
+
+enum BusinessType {
+  restaurant
+  cafe
+  retail
+  pharmacy
+  service
+}
+
+enum PlanTier {
+  starter
+  pro
+  enterprise
+}
+
+enum SubscriptionStatus {
+  active
+  trial
+  expired
+  suspended
+}
+
+enum OrderStatus {
+  pending
+  preparing
+  ready
+  completed
+  cancelled
+}
+
+enum PaymentStatus {
+  unpaid
+  paid
+  refunded
+}
+
+enum PaymentMethod {
+  cash
+  card
+  vodafone_cash
+  instapay
+}
+
+enum OrderType {
+  dine_in
+  takeaway
+  delivery
+}
+
+enum TableStatus {
+  available
+  occupied
+  ready
+  bill_requested
+  assistance
+}
+
+model Tenant {
+  id                     String              @id @default(cuid())
+  name                   String
+  slug                   String              @unique
+  businessType           BusinessType        @default(restaurant)
+  stationLabel           String              @default("المطبخ الرئيسي")
+  orderPointLabel        String              @default("طاولة")
+  
+  // Branding & Configuration
+  logoUrl                String?
+  coverUrl               String?
+  primaryColor           String              @default("#D97706")
+  themeMode              String              @default("warm")
+  fontFamily             String              @default("Cairo")
+  currency               String              @default("ج.م")
+  taxPercentage          Float               @default(14)
+  serviceFeePercentage   Float               @default(12)
+  requireCashierApproval Boolean             @default(false)
+  enableSmartUpselling   Boolean             @default(true)
+  
+  // Licensing & Ownership
+  ownerName              String
+  ownerPhone             String
+  planTier               PlanTier            @default(pro)
+  subscriptionStatus     SubscriptionStatus  @default(active)
+  subscriptionExpiry     DateTime            @default(now())
+  
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  // Relationships
+  users                  User[]
+  categories             Category[]
+  products               Product[]
+  tables                 TableInfo[]
+  orders                 Order[]
+  payments               SubscriptionPayment[]
+
+  @@index([slug])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  avatarUrl String?
+  password  String?  // Hashed password
+  
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
+  icon      String?
+  sortOrder Int       @default(0)
+  
+  products  Product[]
+
+  createdAt DateTime  @default(now())
+
+  @@index([tenantId])
+}
+
+model Product {
+  id              String      @id @default(cuid())
+  tenantId        String
+  tenant          Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  categoryId      String
+  category        Category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  
+  name            String
+  description     String
+  price           Float
+  image           String
+  isAvailable     Boolean     @default(true)
+  stockQuantity   Int         @default(30)
+  isBestSeller    Boolean     @default(false)
+  isVegetarian    Boolean     @default(false)
+  isSpicy         Boolean     @default(false)
+  isUpsell        Boolean     @default(false)
+  prepTimeMinutes Int?        @default(10)
+  calories        Int?
+  
+  modifiers       Modifier[]
+  orderItems      OrderItem[]
+
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([tenantId])
+  @@index([categoryId])
+}
+
+model Modifier {
+  id        String           @id @default(cuid())
+  productId String
+  product   Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name      String
+  required  Boolean          @default(false)
+  options   ModifierOption[]
+}
+
+model ModifierOption {
+  id         String   @id @default(cuid())
+  modifierId String
+  modifier   Modifier @relation(fields: [modifierId], references: [id], onDelete: Cascade)
+  name       String
+  price      Float    @default(0)
+}
+
+model TableInfo {
+  id            String      @id @default(cuid())
+  tenantId      String
+  tenant        Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  number        String
+  name          String
+  capacity      Int         @default(4)
+  status        TableStatus @default(available)
+  activeOrderId String?
+
+  @@unique([tenantId, number])
+  @@index([tenantId])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  tenantId       String
+  tenant         Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orderNumber    String
+  orderType      OrderType     @default(dine_in)
+  orderPointName String
+  customerName   String?
+  customerPhone  String?
+  
+  status         OrderStatus   @default(pending)
+  paymentStatus  PaymentStatus @default(unpaid)
+  paymentMethod  PaymentMethod?
+  
+  subtotal       Float
+  taxAmount      Float
+  serviceAmount  Float
+  discountAmount Float         @default(0)
+  discountNote   String?
+  total          Float
+  notes          String?
+  
+  items          OrderItem[]
+
+  createdAt      DateTime      @default(now())
+  prepStartedAt  DateTime?
+  readyAt        DateTime?
+  completedAt    DateTime?
+
+  @@index([tenantId])
+  @@index([orderNumber])
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  productName String
+  quantity    Int      @default(1)
+  unitPrice   Float
+  totalPrice  Float
+  notes       String?
+}
+
+model SubscriptionPayment {
+  id              String        @id @default(cuid())
+  tenantId        String
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantName      String
+  planTier        PlanTier      @default(pro)
+  billingCycle    String        @default("monthly")
+  amount          Float
+  method          PaymentMethod @default(instapay)
+  senderAccount   String
+  transactionRef  String
+  receiptImageUrl String?
+  status          String        @default("pending") // pending | verified | rejected
+  
+  submittedAt     DateTime      @default(now())
+  verifiedAt      DateTime?
+
+  @@index([tenantId])
+}
