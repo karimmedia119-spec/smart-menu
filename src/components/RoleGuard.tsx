@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 import { UserRole } from "../types";
-import { ShieldAlert, ArrowRight, KeyRound, Check } from "lucide-react";
+import { ShieldAlert, ArrowRight, LogIn, Lock } from "lucide-react";
 
 interface RoleGuardProps {
   allowedRoles: UserRole[];
@@ -45,7 +45,7 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
   pageTitle,
   children,
 }) => {
-  const { currentUser, currentRole, hasRole, switchRole } = useAuth();
+  const { currentUser, currentRole, hasRole } = useAuth();
 
   const isAuthorized = hasRole(allowedRoles);
 
@@ -64,25 +64,25 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
           منطقة محمية بنظام الصلاحيات (RBAC)
         </h2>
         <p className="text-sm text-warm-muted leading-relaxed mb-6">
-          عفواً، حسابك الحالي لا يمتلك صلاحية الوصول إلى شاشة{" "}
-          <span className="font-bold text-warm-text font-sans">[{pageTitle}]</span>.
-          النظام مصمم بفصل أمني كامل يمنع التداخل بين الكاشير ومحطة التجهيز والإدارة والعملاء.
+          عفواً، يتطلب الوصول إلى شاشة{" "}
+          <span className="font-bold text-warm-text font-sans">[{pageTitle}]</span> تسجيل الدخول بحساب يمتلك الصلاحية المناسبة.
+          النظام مصمم بحماية أمنية مشددة تمنع الدخول غير المصرح به.
         </p>
 
         {/* Current Role Info */}
         <div className="bg-warm-bg rounded-2xl p-4 border border-warm-border mb-6 text-right space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-warm-muted">دورك الحالي المسجل:</span>
+            <span className="text-warm-muted">حالة الحساب الحالي:</span>
             <span
               className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                ROLE_LABELS[currentRole].color
+                currentUser ? ROLE_LABELS[currentRole].color : "bg-stone-100 text-stone-700 border-stone-200"
               }`}
             >
-              {ROLE_LABELS[currentRole].title}
+              {currentUser ? ROLE_LABELS[currentRole].title : "غير مسجل الدخول (زائر)"}
             </span>
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-warm-muted">الأدوار المسموح لها بالدخول:</span>
+            <span className="text-warm-muted">الأدوار المصرح لها:</span>
             <div className="flex flex-wrap gap-1 justify-end">
               {allowedRoles.map((role) => (
                 <span
@@ -96,54 +96,21 @@ export const RoleGuard: React.FC<RoleGuardProps> = ({
           </div>
         </div>
 
-        {/* Quick Role Switcher for seamless review & demo */}
-        <div className="border-t border-warm-border pt-5 mb-6 text-right">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-warm-text mb-3">
-            <KeyRound className="w-4 h-4 text-warm-accent" />
-            <span>تجربة النظام: قم بتبديل الدور بلمسة واحدة:</span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {(Object.keys(ROLE_LABELS) as UserRole[]).map((r) => {
-              const info = ROLE_LABELS[r];
-              const isCurrent = currentRole === r;
-              const isAllowed = allowedRoles.includes(r) || r === "SUPER_ADMIN";
-              return (
-                <button
-                  key={r}
-                  onClick={() => switchRole(r)}
-                  className={`p-2.5 rounded-xl border text-right transition-all flex items-center justify-between text-xs ${
-                    isCurrent
-                      ? "border-warm-accent bg-amber-50/50 text-warm-text font-bold shadow-sm"
-                      : isAllowed
-                      ? "border-emerald-200 bg-emerald-50/30 hover:bg-emerald-50 text-warm-text"
-                      : "border-warm-border bg-white hover:bg-stone-50 text-warm-muted"
-                  }`}
-                >
-                  <div className="truncate">
-                    <div className="font-bold flex items-center gap-1">
-                      {info.title.split("(")[0]}
-                      {isAllowed && (
-                        <span className="text-[9px] px-1 bg-emerald-100 text-emerald-800 rounded">
-                          مسموح
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  {isCurrent && <Check className="w-4 h-4 text-warm-accent shrink-0" />}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex gap-2">
+        {/* Action Buttons: Go to Login / Home */}
+        <div className="flex flex-col sm:flex-row gap-2.5">
+          <Link
+            href="/login"
+            className="flex-1 py-3 px-4 rounded-xl bg-warm-accent hover:bg-amber-600 text-white font-black text-xs transition-colors flex items-center justify-center gap-2 shadow-sm"
+          >
+            <LogIn className="w-4 h-4" />
+            تسجيل الدخول بحسابك المخوّل
+          </Link>
           <Link
             href="/"
-            className="flex-1 py-3 px-4 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-warm-text font-bold text-xs transition-colors flex items-center justify-center gap-2"
+            className="py-3 px-4 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-warm-text font-bold text-xs transition-colors flex items-center justify-center gap-2"
           >
-            <ArrowRight className="w-4 h-4" />
-            العودة لواجهة العميل الرئيسية
+            <ArrowRight className="w-4 h-4 rotate-180" />
+            الرئيسية
           </Link>
         </div>
       </div>

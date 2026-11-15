@@ -4,106 +4,161 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, UserRole } from "../types";
 import { DEMO_USERS } from "../lib/data";
 
+interface LoginResult {
+  success: boolean;
+  error?: string;
+  user?: User;
+}
+
+interface RegisterParams {
+  name: string;
+  email: string;
+  password: string;
+  phone?: string;
+  role: UserRole;
+  tenantId?: string;
+}
+
 interface AuthContextType {
-  currentUser: User;
+  currentUser: User | null;
   currentRole: UserRole;
+  isAuthenticated: boolean;
   users: User[];
-  switchUser: (userId: string) => void;
-  switchRole: (role: UserRole) => void;
-  hasRole: (allowedRoles: UserRole[]) => boolean;
-  login: (email: string) => boolean;
+  login: (email: string, password: string) => LoginResult;
+  registerUser: (params: RegisterParams) => User;
   logout: () => void;
+  hasRole: (allowedRoles: UserRole[]) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const STORAGE_KEY = "smart_menu_auth_user";
+const STORAGE_USER_KEY = "smart_menu_auth_user";
+const STORAGE_USERS_LIST = "smart_menu_registered_users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users] = useState<User[]>(DEMO_USERS);
-  const [currentUser, setCurrentUser] = useState<User>(DEMO_USERS[0]); // Default Super Admin
+  const [users, setUsers] = useState<User[]>(DEMO_USERS);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
+  // Initialize from storage or stay logged out
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const savedUserId = localStorage.getItem(STORAGE_KEY);
+      // 1. Load any extra registered users from localStorage
+      const savedUsersList = localStorage.getItem(STORAGE_USERS_LIST);
+      let allUsers = DEMO_USERS;
+      if (savedUsersList) {
+        const parsed = JSON.parse(savedUsersList);
+        if (Array.isArray(parsed)) {
+          allUsers = [
+            ...DEMO_USERS,
+            ...parsed.filter((p: User) => !DEMO_USERS.some((d) => d.email.toLowerCase() === p.email.toLowerCase())),
+          ];
+          setUsers(allUsers);
+        }
+      }
+
+      // 2. Check if a user had actively logged in previously
+      const savedUserId = localStorage.getItem(STORAGE_USER_KEY);
       if (savedUserId) {
-        const found = DEMO_USERS.find((u) => u.id === savedUserId);
+        const found = allUsers.find((u) => u.id === savedUserId);
         if (found) {
           setCurrentUser(found);
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error("Auth initialization error:", e);
+    }
   }, []);
 
-  const switchUser = (userId: string) => {
-    const user = users.find((u) => u.id === userId);
-    if (user) {
-      setCurrentUser(user);
-      try {
-        localStorage.setItem(STORAGE_KEY, user.id);
-      } catch (e) {}
+  const login = (email: string, password: string): LoginResult => {
+    const normalizedEmail = email.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!normalizedEmail) {
+      return { success: false, error: "يرجى إدخال البريد الإلكتروني" };
     }
+    if (!cleanPassword) {
+      return { success: false, error: "يرجى إدخال كلمة المرور" };
+    }
+
+    const foundUser = users.find((u) => u.email.toLowerCase() === normalizedEmail);
+
+    if (!foundUser) {
+      return {
+        success: false,
+        error: "بيانات الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.",
+      };
+    }
+
+    // Verify password (matches user password, or standard default passwords)
+    const validPasswords = [foundUser.password, "password123", "admin123", "123456"].filter(Boolean);
+    if (!validPasswords.includes(cleanPassword)) {
+      return {
+        success: false,
+        error: "كلمة المرور غير صحيحة. يرجى التأكد من الرمز المدخل.",
+      };
+    }
+
+    // Login successful
+    setCurrentUser(foundUser);
+    try {
+      localStorage.setItem(STORAGE_USER_KEY, foundUser.id);
+    } catch (e) {}
+
+    return { success: true, user: foundUser };
   };
 
-  const switchRole = (role: UserRole) => {
-    const matchingUser = users.find((u) => u.role === role);
-    if (matchingUser) {
-      setCurrentUser(matchingUser);
-      try {
-        localStorage.setItem(STORAGE_KEY, matchingUser.id);
-      } catch (e) {}
-    } else {
-      // Create a temporary profile for that role
-      const tempUser: User = {
-        id: `usr-${role.toLowerCase()}-${Date.now()}`,
-        name: `مستخدم تجريبي (${role})`,
-        email: `${role.toLowerCase()}@smartmenu.app`,
-        role: role,
-        tenantId: role === "SUPER_ADMIN" ? undefined : "tenant-el-prince",
-      };
-      setCurrentUser(tempUser);
-    }
+  const registerUser = (params: RegisterParams): User => {
+    const newUser: User = {
+      id: `usr-${Date.now()}`,
+      name: params.name,
+      email: params.email.trim().toLowerCase(),
+      password: params.password,
+      phone: params.phone || "",
+      role: params.role,
+      tenantId: params.tenantId,
+    };
+
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+    setCurrentUser(newUser);
+
+    try {
+      localStorage.setItem(STORAGE_USER_KEY, newUser.id);
+      const customUsers = updatedUsers.filter((u) => !DEMO_USERS.some((d) => d.id === u.id));
+      localStorage.setItem(STORAGE_USERS_LIST, JSON.stringify(customUsers));
+    } catch (e) {}
+
+    return newUser;
+  };
+
+  const logout = () => {
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem(STORAGE_USER_KEY);
+    } catch (e) {}
   };
 
   const hasRole = (allowedRoles: UserRole[]): boolean => {
+    if (!currentUser) return false;
     if (currentUser.role === "SUPER_ADMIN") return true; // Super Admin has universal access
     return allowedRoles.includes(currentUser.role);
   };
 
-  const login = (email: string): boolean => {
-    const normalized = email.trim().toLowerCase();
-    const found = users.find((u) => u.email.toLowerCase() === normalized);
-    if (found) {
-      setCurrentUser(found);
-      try {
-        localStorage.setItem(STORAGE_KEY, found.id);
-      } catch (e) {}
-      return true;
-    }
-    return false;
-  };
-
-  const logout = () => {
-    // Revert to customer/guest
-    const customerUser = users.find((u) => u.role === "CUSTOMER") || users[4];
-    setCurrentUser(customerUser);
-    try {
-      localStorage.setItem(STORAGE_KEY, customerUser.id);
-    } catch (e) {}
-  };
+  const currentRole: UserRole = currentUser ? currentUser.role : "CUSTOMER";
+  const isAuthenticated = !!currentUser && currentUser.role !== "CUSTOMER";
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
-        currentRole: currentUser.role,
+        currentRole,
+        isAuthenticated,
         users,
-        switchUser,
-        switchRole,
-        hasRole,
         login,
+        registerUser,
         logout,
+        hasRole,
       }}
     >
       {children}

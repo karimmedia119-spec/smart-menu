@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
 import { UserRole } from "../types";
@@ -23,6 +23,8 @@ import {
   Lock,
   Sparkles,
   LogIn,
+  LogOut,
+  User as UserIcon,
 } from "lucide-react";
 
 const ROLE_DISPLAY: Record<UserRole, { label: string; badge: string; color: string }> = {
@@ -66,10 +68,10 @@ export const Navbar: React.FC = () => {
     toggleSound,
   } = useApp();
 
-  const { currentUser, currentRole, switchRole } = useAuth();
-
+  const router = useRouter();
+  const { currentUser, currentRole, isAuthenticated, logout } = useAuth();
   const [tenantDropdownOpen, setTenantDropdownOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
   // Pending counts for badges
   const tenantOrders = orders.filter((o) => o.tenantId === activeTenant.id);
@@ -151,7 +153,7 @@ export const Navbar: React.FC = () => {
             <button
               onClick={() => {
                 setTenantDropdownOpen(!tenantDropdownOpen);
-                setRoleDropdownOpen(false);
+                setUserDropdownOpen(false);
               }}
               className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-xs font-medium text-warm-text transition-colors shadow-sm"
             >
@@ -281,69 +283,8 @@ export const Navbar: React.FC = () => {
           })}
         </nav>
 
-        {/* User Role Switcher & Controls */}
+        {/* User Account & Controls */}
         <div className="flex items-center gap-2">
-          {/* RBAC Role Selector Dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => {
-                setRoleDropdownOpen(!roleDropdownOpen);
-                setTenantDropdownOpen(false);
-              }}
-              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm ${
-                ROLE_DISPLAY[currentRole].color
-              }`}
-              title="تغيير صلاحية الدخول لتجربة النظام"
-            >
-              <UserCheck className="w-3.5 h-3.5 shrink-0" />
-              <span className="hidden sm:inline">{ROLE_DISPLAY[currentRole].label}</span>
-              <span className="text-[10px] uppercase font-mono px-1 rounded bg-white/70">
-                {ROLE_DISPLAY[currentRole].badge}
-              </span>
-              <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
-
-            {roleDropdownOpen && (
-              <div className="absolute left-0 mt-2 w-64 glass-dropdown rounded-2xl p-2 z-50 animate-fadeIn text-right">
-                <div className="px-3 py-1.5 border-b border-warm-border mb-1 text-[11px] text-warm-muted font-bold flex items-center justify-between">
-                  <span>الصلاحيات والأدوار (RBAC)</span>
-                  <Sparkles className="w-3 h-3 text-amber-600" />
-                </div>
-
-                <div className="space-y-1">
-                  {(Object.keys(ROLE_DISPLAY) as UserRole[]).map((r) => {
-                    const info = ROLE_DISPLAY[r];
-                    const isSelected = currentRole === r;
-                    return (
-                      <button
-                        key={r}
-                        onClick={() => {
-                          switchRole(r);
-                          setRoleDropdownOpen(false);
-                        }}
-                        className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs transition-colors ${
-                          isSelected
-                            ? "bg-amber-50 text-warm-text font-bold border border-warm-accent"
-                            : "text-warm-muted hover:bg-stone-50 hover:text-warm-text"
-                        }`}
-                      >
-                        <div className="flex flex-col text-right">
-                          <span className="font-bold text-warm-text">{info.label}</span>
-                          <span className="text-[10px] text-warm-muted">{info.badge}</span>
-                        </div>
-                        <span
-                          className={`text-[9px] px-1.5 py-0.5 rounded border font-mono ${info.color}`}
-                        >
-                          {r}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
-
           {/* Sound Toggle */}
           <button
             onClick={toggleSound}
@@ -378,15 +319,62 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Login / Auth Portal link */}
-          <Link
-            href="/login"
-            title="صفحة تسجيل الدخول وإدارة الحساب"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-warm-text font-bold text-xs transition-colors shadow-xs"
-          >
-            <LogIn className="w-3.5 h-3.5 text-warm-accent" />
-            <span className="hidden sm:inline">دخول</span>
-          </Link>
+          {/* User Profile or Login Button */}
+          {currentUser ? (
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setUserDropdownOpen(!userDropdownOpen);
+                  setTenantDropdownOpen(false);
+                }}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-bold transition-all shadow-sm ${
+                  ROLE_DISPLAY[currentRole]?.color || "bg-warm-surface text-warm-text border-warm-border"
+                }`}
+              >
+                <UserCheck className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline max-w-[100px] truncate">{currentUser.name}</span>
+                <span className="text-[10px] uppercase font-mono px-1 rounded bg-white/70">
+                  {ROLE_DISPLAY[currentRole]?.badge || currentRole}
+                </span>
+                <ChevronDown className="w-3 h-3 opacity-60" />
+              </button>
+
+              {userDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-60 glass-dropdown rounded-2xl p-2.5 z-50 animate-fadeIn text-right shadow-warm">
+                  <div className="px-2.5 py-2 border-b border-warm-border mb-2">
+                    <div className="font-extrabold text-xs text-warm-text">{currentUser.name}</div>
+                    <div className="text-[11px] text-warm-muted font-mono">{currentUser.email}</div>
+                    <div className="mt-1.5">
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border ${ROLE_DISPLAY[currentRole]?.color}`}>
+                        {ROLE_DISPLAY[currentRole]?.label}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      logout();
+                      setUserDropdownOpen(false);
+                      router.push("/login");
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 transition-colors"
+                  >
+                    <span>تسجيل الخروج</span>
+                    <LogOut className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              title="تسجيل الدخول إلى حسابك"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-warm-accent hover:bg-amber-600 text-white font-bold text-xs transition-colors shadow-sm"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>تسجيل الدخول</span>
+            </Link>
+          )}
         </div>
       </div>
     </header>

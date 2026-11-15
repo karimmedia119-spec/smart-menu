@@ -5,27 +5,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import { useApp } from "../../context/AppContext";
-import { UserRole } from "../../types";
 import {
   Lock,
   Mail,
-  KeyRound,
-  ShieldCheck,
   Building2,
-  ChefHat,
-  ReceiptText,
-  UtensilsCrossed,
   ArrowRight,
   Sparkles,
   CheckCircle2,
   Clock,
   Eye,
   EyeOff,
+  AlertCircle,
+  KeyRound,
+  Info,
 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { users, switchUser, switchRole } = useAuth();
+  const { login, registerUser } = useAuth();
   const { addNewTenant, setActiveTenantId } = useApp();
 
   const [activeTab, setActiveTab] = useState<"login" | "register">("login");
@@ -33,55 +30,63 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Registration Form State (7-day free trial)
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
+  const [regEmail, setRegEmail] = useState("");
+  const [regPassword, setRegPassword] = useState("");
   const [ownerPhone, setOwnerPhone] = useState("");
   const [businessType, setBusinessType] = useState<"restaurant" | "cafe" | "retail" | "pharmacy">("restaurant");
   const [regSuccess, setRegSuccess] = useState(false);
 
-  const handleRoleQuickLogin = (role: UserRole) => {
-    switchRole(role);
-    // Redirect logically based on role
-    if (role === "SUPER_ADMIN" || role === "TENANT_ADMIN") {
-      router.push("/admin");
-    } else if (role === "CASHIER") {
-      router.push("/cashier");
-    } else if (role === "KITCHEN") {
-      router.push("/kitchen");
+  // Manual Login Handler (NO auto login)
+  const handleManualLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setIsLoading(true);
+
+    const result = login(email, password);
+
+    if (result.success && result.user) {
+      // If user is tied to a specific tenant, activate it
+      if (result.user.tenantId) {
+        setActiveTenantId(result.user.tenantId);
+      }
+
+      // Redirect strictly by role
+      setTimeout(() => {
+        setIsLoading(false);
+        if (result.user?.role === "SUPER_ADMIN" || result.user?.role === "TENANT_ADMIN") {
+          router.push("/admin");
+        } else if (result.user?.role === "CASHIER") {
+          router.push("/cashier");
+        } else if (result.user?.role === "KITCHEN") {
+          router.push("/kitchen");
+        } else {
+          router.push("/");
+        }
+      }, 500);
     } else {
-      router.push("/");
+      setIsLoading(false);
+      setErrorMsg(result.error || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
     }
   };
 
-  const handleCustomLogin = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Helper function to fill form inputs manually for convenience (without submitting/auto-logging in)
+  const fillInputFields = (fillEmail: string, fillPass: string) => {
+    setEmail(fillEmail);
+    setPassword(fillPass);
     setErrorMsg(null);
-
-    const normalizedEmail = email.trim().toLowerCase();
-    const foundUser = users.find((u) => u.email.toLowerCase() === normalizedEmail);
-
-    if (foundUser) {
-      switchUser(foundUser.id);
-      if (foundUser.role === "SUPER_ADMIN" || foundUser.role === "TENANT_ADMIN") {
-        router.push("/admin");
-      } else if (foundUser.role === "CASHIER") {
-        router.push("/cashier");
-      } else if (foundUser.role === "KITCHEN") {
-        router.push("/kitchen");
-      } else {
-        router.push("/");
-      }
-    } else {
-      // Allow flexible demo login
-      setErrorMsg("البريد الإلكتروني غير مسجل، أو يمكنك استخدام أزرار الدخول السريع بالأدوار أدناه.");
-    }
   };
 
   const handleRegisterNewTenant = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!businessName.trim() || !ownerName.trim()) return;
+    if (!businessName.trim() || !ownerName.trim() || !regEmail.trim() || !regPassword.trim()) {
+      setErrorMsg("يرجى ملء كافة الحقول الإلزامية");
+      return;
+    }
 
     const slug =
       businessName
@@ -117,24 +122,33 @@ export default function LoginPage() {
       onboardingCompleted: false, // Brand new empty state
     });
 
+    // Register User with their entered credentials
+    registerUser({
+      name: ownerName,
+      email: regEmail,
+      password: regPassword,
+      phone: ownerPhone,
+      role: "TENANT_ADMIN",
+      tenantId: newTenant.id,
+    });
+
     setActiveTenantId(newTenant.id);
-    switchRole("TENANT_ADMIN");
     setRegSuccess(true);
 
     setTimeout(() => {
       router.push("/admin");
-    }, 1500);
+    }, 1200);
   };
 
   return (
-    <div className="min-h-screen bg-warm-bg text-warm-text flex flex-col justify-between py-8 px-4 selection:bg-warm-accent selection:text-white">
+    <div className="min-h-screen bg-warm-bg text-warm-text flex flex-col justify-between py-10 px-4 selection:bg-warm-accent selection:text-white">
       {/* Brand Header */}
       <div className="max-w-md w-full mx-auto text-center mb-6">
         <Link href="/" className="inline-flex items-center gap-2 group mb-3">
-          <div className="w-10 h-10 rounded-2xl bg-warm-accent flex items-center justify-center text-white font-black text-xl shadow-warm transition-transform group-hover:scale-105">
+          <div className="w-11 h-11 rounded-2xl bg-warm-accent flex items-center justify-center text-white font-black text-2xl shadow-warm transition-transform group-hover:scale-105">
             S
           </div>
-          <span className="font-black text-xl tracking-tight text-warm-text flex items-center gap-1.5">
+          <span className="font-black text-2xl tracking-tight text-warm-text flex items-center gap-1.5">
             Smart Menu
             <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-warm-surface border border-warm-border text-warm-muted">
               SaaS
@@ -142,7 +156,7 @@ export default function LoginPage() {
           </span>
         </Link>
         <p className="text-xs text-warm-muted">
-          المنظومة السحابية المتكاملة للطلب اللحظي وإدارة المنشآت بتصميم دافئ فاخر
+          بوابة تسجيل الدخول الآمنة للمنظومة السحابية لإدارة المطاعم والمنشآت
         </p>
       </div>
 
@@ -151,8 +165,11 @@ export default function LoginPage() {
         {/* Tabs: Login vs Register */}
         <div className="flex items-center bg-warm-surface p-1 rounded-2xl border border-warm-border mb-6">
           <button
-            onClick={() => setActiveTab("login")}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+            onClick={() => {
+              setActiveTab("login");
+              setErrorMsg(null);
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all ${
               activeTab === "login"
                 ? "bg-white text-warm-text shadow-sm border border-warm-border"
                 : "text-warm-muted hover:text-warm-text"
@@ -161,15 +178,18 @@ export default function LoginPage() {
             تسجيل الدخول
           </button>
           <button
-            onClick={() => setActiveTab("register")}
-            className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all relative ${
+            onClick={() => {
+              setActiveTab("register");
+              setErrorMsg(null);
+            }}
+            className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all relative ${
               activeTab === "register"
                 ? "bg-white text-warm-text shadow-sm border border-warm-border"
                 : "text-warm-muted hover:text-warm-text"
             }`}
           >
             <span>حساب جديد</span>
-            <span className="mr-1.5 px-1.5 py-0.2 rounded-full bg-amber-500 text-white text-[9px] font-black">
+            <span className="mr-1.5 px-1.5 py-0.5 rounded-full bg-amber-500 text-white text-[9px] font-black">
               تجربة 7 أيام
             </span>
           </button>
@@ -177,123 +197,28 @@ export default function LoginPage() {
 
         {activeTab === "login" ? (
           <div>
-            {/* Quick 1-Click Role Login (Seamless testing & isolated demo) */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2.5">
-                <span className="text-xs font-black text-warm-text flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-warm-accent" />
-                  <span>دخول مباشر وسريع حسب الدور (RBAC):</span>
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLogin("SUPER_ADMIN")}
-                  className="p-2.5 rounded-xl border border-purple-200 bg-purple-50/40 hover:bg-purple-100 text-right transition-all flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="font-extrabold text-purple-950 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5 text-purple-700" />
-                      <span>مالك المنصة</span>
-                    </div>
-                    <div className="text-[10px] text-purple-700">تراخيص المشتركين والحسابات</div>
-                  </div>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-200 text-purple-900 font-mono font-bold">
-                    Super Admin
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLogin("TENANT_ADMIN")}
-                  className="p-2.5 rounded-xl border border-blue-200 bg-blue-50/40 hover:bg-blue-100 text-right transition-all flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="font-extrabold text-blue-950 flex items-center gap-1">
-                      <Building2 className="w-3.5 h-3.5 text-blue-700" />
-                      <span>مدير المطعم</span>
-                    </div>
-                    <div className="text-[10px] text-blue-700">المنيو، الأسعار، والإعدادات</div>
-                  </div>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-200 text-blue-900 font-mono font-bold">
-                    Admin
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLogin("CASHIER")}
-                  className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/40 hover:bg-emerald-100 text-right transition-all flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="font-extrabold text-emerald-950 flex items-center gap-1">
-                      <ReceiptText className="w-3.5 h-3.5 text-emerald-700" />
-                      <span>الكاشير (POS)</span>
-                    </div>
-                    <div className="text-[10px] text-emerald-700">نقاط البيع والفواتير والوردية</div>
-                  </div>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-200 text-emerald-900 font-mono font-bold">
-                    Cashier
-                  </span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleRoleQuickLogin("KITCHEN")}
-                  className="p-2.5 rounded-xl border border-amber-200 bg-amber-50/40 hover:bg-amber-100 text-right transition-all flex items-center justify-between text-xs"
-                >
-                  <div>
-                    <div className="font-extrabold text-amber-950 flex items-center gap-1">
-                      <ChefHat className="w-3.5 h-3.5 text-amber-700" />
-                      <span>شاشة التجهيز</span>
-                    </div>
-                    <div className="text-[10px] text-amber-700">طلبات التحضير اللحظية KDS</div>
-                  </div>
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-200 text-amber-900 font-mono font-bold">
-                    Kitchen
-                  </span>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleRoleQuickLogin("CUSTOMER")}
-                className="w-full mt-2 p-2 rounded-xl border border-stone-200 bg-stone-50 hover:bg-stone-100 text-right transition-all flex items-center justify-between text-xs"
-              >
-                <div className="flex items-center gap-1.5 font-bold text-stone-800">
-                  <UtensilsCrossed className="w-3.5 h-3.5 text-warm-accent" />
-                  <span>دخول كعميل الصالة (تصفح القائمة والطلب من الطاولة)</span>
-                </div>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-stone-200 text-stone-700 font-mono">
-                  Guest
-                </span>
-              </button>
-            </div>
-
-            <div className="relative my-5">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-warm-border" />
-              </div>
-              <div className="relative flex justify-center text-[11px] uppercase">
-                <span className="bg-white px-2 text-warm-muted font-bold">أو تسجيل الدخول ببريدك</span>
-              </div>
+            <div className="mb-5 text-right">
+              <h2 className="text-base font-black text-warm-text">تسجيل الدخول إلى حسابك</h2>
+              <p className="text-xs text-warm-muted mt-0.5">
+                أدخل بريدك الإلكتروني وكلمة المرور للدخول إلى لوحة التحكم الخاصة بك
+              </p>
             </div>
 
             {errorMsg && (
-              <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs mb-4">
-                {errorMsg}
+              <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs mb-4 flex items-center gap-2 text-right">
+                <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span>{errorMsg}</span>
               </div>
             )}
 
-            {/* Email & Password Form */}
-            <form onSubmit={handleCustomLogin} className="space-y-4 text-right">
+            {/* Email & Password Pure Form */}
+            <form onSubmit={handleManualLogin} className="space-y-4 text-right">
               <div>
-                <label className="block text-xs font-bold text-warm-text mb-1">
+                <label className="block text-xs font-bold text-warm-text mb-1.5">
                   البريد الإلكتروني:
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-warm-muted absolute right-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-warm-muted absolute right-3.5 top-3.5" />
                   <input
                     type="email"
                     required
@@ -306,9 +231,9 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-warm-text mb-1">كلمة المرور:</label>
+                <label className="block text-xs font-bold text-warm-text mb-1.5">كلمة المرور:</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-warm-muted absolute right-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-warm-muted absolute right-3.5 top-3.5" />
                   <input
                     type={showPassword ? "text" : "password"}
                     required
@@ -320,31 +245,105 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute left-3.5 top-3 text-warm-muted hover:text-warm-text"
+                    className="absolute left-3.5 top-3.5 text-warm-muted hover:text-warm-text"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center justify-between text-xs pt-1">
                 <label className="flex items-center gap-1.5 cursor-pointer text-warm-muted">
                   <input type="checkbox" defaultChecked className="rounded border-warm-border text-warm-accent" />
                   <span>تذكر بيانات دخولي</span>
                 </label>
-                <a href="#" className="text-warm-accent hover:underline font-bold">
-                  نسيت كلمة المرور؟
-                </a>
+                <span className="text-[11px] text-warm-muted">حماية وتشفير SSL</span>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-2xl bg-warm-text hover:bg-stone-800 text-white font-black text-xs transition-colors shadow-warm flex items-center justify-center gap-2"
+                disabled={isLoading}
+                className="w-full py-3.5 rounded-2xl bg-warm-accent hover:bg-amber-600 active:scale-[0.99] text-white font-black text-xs transition-all shadow-warm flex items-center justify-center gap-2"
               >
-                <span>دخول إلى لوحة العمل</span>
-                <ArrowRight className="w-4 h-4 rotate-180" />
+                {isLoading ? (
+                  <span>جاري التحقق من البيانات...</span>
+                ) : (
+                  <>
+                    <span>تسجيل الدخول الآن</span>
+                    <ArrowRight className="w-4 h-4 rotate-180" />
+                  </>
+                )}
               </button>
             </form>
+
+            {/* Test Accounts Reference Card (Pure helper to view email/pass to type) */}
+            <div className="mt-6 pt-5 border-t border-warm-border text-right">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-warm-text flex items-center gap-1.5">
+                  <KeyRound className="w-3.5 h-3.5 text-warm-accent" />
+                  <span>بيانات حسابات النظام (للتجربة والاختبار):</span>
+                </span>
+                <span className="text-[10px] text-warm-muted">كلمة المرور: password123</span>
+              </div>
+
+              <div className="space-y-1.5 text-xs">
+                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-warm-text text-[11px] block">مالك المنصة (Super Admin)</span>
+                    <code className="text-[10px] text-purple-700 font-mono">superadmin@smartmenu.app</code>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fillInputFields("superadmin@smartmenu.app", "password123")}
+                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
+                  >
+                    تعبئة الحقول
+                  </button>
+                </div>
+
+                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-warm-text text-[11px] block">مدير المطعم (Tenant Admin)</span>
+                    <code className="text-[10px] text-blue-700 font-mono">prince@smartmenu.app</code>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fillInputFields("prince@smartmenu.app", "password123")}
+                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
+                  >
+                    تعبئة الحقول
+                  </button>
+                </div>
+
+                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-warm-text text-[11px] block">الكاشير (Cashier POS)</span>
+                    <code className="text-[10px] text-emerald-700 font-mono">cashier@smartmenu.app</code>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fillInputFields("cashier@smartmenu.app", "password123")}
+                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
+                  >
+                    تعبئة الحقول
+                  </button>
+                </div>
+
+                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
+                  <div>
+                    <span className="font-bold text-warm-text text-[11px] block">محطة التجهيز والمطبخ (Kitchen)</span>
+                    <code className="text-[10px] text-amber-700 font-mono">chef@smartmenu.app</code>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fillInputFields("chef@smartmenu.app", "password123")}
+                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
+                  >
+                    تعبئة الحقول
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div>
@@ -356,22 +355,22 @@ export default function LoginPage() {
                   فترة تجربة مجانية كاملة لمدة 7 أيام!
                 </div>
                 <div className="text-[11px] text-amber-800">
-                  ابدأ فوراً بنظام نظيف تماماً مع إرشادات تشغيلية خطوة بخطوة، بدون طلب بطاقة بنكية.
+                  أنشئ حسابك الآن وسجل الدخول بنظام نظيف تماماً مع إرشادات تشغيلية خطوة بخطوة.
                 </div>
               </div>
             </div>
 
             {regSuccess && (
-              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold mb-4 flex items-center gap-2 animate-fadeIn">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span>تم إنشاء نشاطك التجاري بنجاح! جاري توجيهك إلى لوحة التحكم...</span>
+              <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold mb-4 flex items-center gap-2 animate-fadeIn text-right">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>تم إنشاء حسابك ونشاطك بنجاح! جاري تحويلك إلى لوحة التحكم...</span>
               </div>
             )}
 
             <form onSubmit={handleRegisterNewTenant} className="space-y-3.5 text-right">
               <div>
                 <label className="block text-xs font-bold text-warm-text mb-1">
-                  اسم النشاط التجاري (المطعم / الكافيه):
+                  اسم النشاط التجاري (المطعم / الكافيه): *
                 </label>
                 <input
                   type="text"
@@ -409,13 +408,39 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-warm-text mb-1">اسم المسؤول / المالك:</label>
+                <label className="block text-xs font-bold text-warm-text mb-1">اسم المسؤول / المالك: *</label>
                 <input
                   type="text"
                   required
                   placeholder="مثال: أ. محمد عبد الله"
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-warm-text text-xs focus:outline-none focus:border-warm-accent shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-warm-text mb-1">
+                  البريد الإلكتروني لتسجيل الدخول: *
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="admin@myrestaurant.com"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-warm-text text-xs focus:outline-none focus:border-warm-accent shadow-xs"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-warm-text mb-1">كلمة المرور للحساب: *</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="••••••••"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-warm-text text-xs focus:outline-none focus:border-warm-accent shadow-xs"
                 />
               </div>
@@ -437,7 +462,7 @@ export default function LoginPage() {
                 className="w-full py-3.5 rounded-2xl bg-warm-accent hover:bg-amber-600 text-white font-black text-xs transition-all shadow-warm flex items-center justify-center gap-2 mt-2"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>بدء التجربة المجانية الآن (7 أيام)</span>
+                <span>إنشاء الحساب وبدء التجربة المجانية (7 أيام)</span>
               </button>
             </form>
           </div>
