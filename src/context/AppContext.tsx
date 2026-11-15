@@ -47,6 +47,8 @@ interface AppContextType {
   updateStockQuantity: (productId: string, delta: number) => void;
   addCategory: (name: string) => Category;
   deleteCategory: (categoryId: string) => void;
+  loadSampleMenuForTenant: (tenantId: string) => void;
+  clearTenantMenu: (tenantId: string) => void;
 
   // Floor Plan & Tables
   updateTableStatus: (tableNumber: string, status: TableStatus, activeOrderId?: string) => void;
@@ -401,6 +403,97 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       status: "available",
     };
     setTablesList((prev) => [...prev, newTbl]);
+  };
+
+  const loadSampleMenuForTenant = (tenantId: string) => {
+    const sampleCats: Category[] = [
+      { id: `cat-${Date.now()}-1`, tenantId, name: "المقبلات والشوربة", sortOrder: 1 },
+      { id: `cat-${Date.now()}-2`, tenantId, name: "الأطباق الرئيسية واللحوم", sortOrder: 2 },
+      { id: `cat-${Date.now()}-3`, tenantId, name: "المشروبات المنعشة", sortOrder: 3 },
+      { id: `cat-${Date.now()}-4`, tenantId, name: "الحلويات", sortOrder: 4 },
+    ];
+
+    const sampleProds: Product[] = [
+      {
+        id: `prod-${Date.now()}-1`,
+        tenantId,
+        categoryId: sampleCats[1].id,
+        name: "كبدة إسكندراني باللية والبهارات",
+        description: "كبدة طازجة متبلة بالثوم والفلفل الحار والخلطة السرية مع شرائح الفلفل والليمون الساخن.",
+        price: 185,
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600",
+        isAvailable: true,
+        stockQuantity: 25,
+        isBestSeller: true,
+        isSpicy: true,
+        prepTimeMinutes: 12,
+        calories: 520,
+      },
+      {
+        id: `prod-${Date.now()}-2`,
+        tenantId,
+        categoryId: sampleCats[1].id,
+        name: "طاجن لحم بلدي بالبصل القاورما",
+        description: "قطع لحم بلدي طازجة مطهوة ببطء في الفرن الحجري داخل فخارة مغطاة بالعجين ومتبلة ببهارات خاصة.",
+        price: 295,
+        image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600",
+        isAvailable: true,
+        stockQuantity: 18,
+        isBestSeller: true,
+        prepTimeMinutes: 20,
+        calories: 680,
+      },
+      {
+        id: `prod-${Date.now()}-3`,
+        tenantId,
+        categoryId: sampleCats[0].id,
+        name: "شوربة كوارع مخلية بالليمون",
+        description: "شوربة غنية ومفيدة مع قطع الكوارع المخلية وتتبيلة الثوم والليمون والخبز المحمص.",
+        price: 110,
+        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600",
+        isAvailable: true,
+        stockQuantity: 30,
+        prepTimeMinutes: 8,
+        calories: 340,
+      },
+      {
+        id: `prod-${Date.now()}-4`,
+        tenantId,
+        categoryId: sampleCats[2].id,
+        name: "ليمون نعناع فريش مثلج",
+        description: "عصير ليمون طبيعي مع أوراق النعناع الطازجة وسيروب خفيف على أحجار الثلج المجروش.",
+        price: 45,
+        image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600",
+        isAvailable: true,
+        stockQuantity: 50,
+        isUpsell: true,
+        prepTimeMinutes: 4,
+        calories: 120,
+      },
+    ];
+
+    const sampleTables: TableInfo[] = [
+      { id: `tbl-${Date.now()}-1`, tenantId, number: "1", name: "طاولة 1", capacity: 4, status: "available" },
+      { id: `tbl-${Date.now()}-2`, tenantId, number: "2", name: "طاولة 2", capacity: 2, status: "available" },
+      { id: `tbl-${Date.now()}-3`, tenantId, number: "3", name: "طاولة 3", capacity: 4, status: "available" },
+      { id: `tbl-${Date.now()}-4`, tenantId, number: "4", name: "طاولة 4", capacity: 6, status: "available" },
+      { id: `tbl-${Date.now()}-5`, tenantId, number: "VIP", name: "صالة VIP", capacity: 12, status: "available" },
+    ];
+
+    setCategoriesList((prev) => [...prev, ...sampleCats]);
+    setProductsList((prev) => [...prev, ...sampleProds]);
+    setTablesList((prev) => [...prev, ...sampleTables]);
+    setTenants((prev) =>
+      prev.map((t) => (t.id === tenantId ? { ...t, isSampleDataLoaded: true, onboardingCompleted: true } : t))
+    );
+  };
+
+  const clearTenantMenu = (tenantId: string) => {
+    setProductsList((prev) => prev.filter((p) => p.tenantId !== tenantId));
+    setCategoriesList((prev) => prev.filter((c) => c.tenantId !== tenantId));
+    setTenants((prev) =>
+      prev.map((t) => (t.id === tenantId ? { ...t, isSampleDataLoaded: false, onboardingCompleted: false } : t))
+    );
   };
 
   // Cart operations
@@ -837,6 +930,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateStockQuantity,
         addCategory,
         deleteCategory,
+        loadSampleMenuForTenant,
+        clearTenantMenu,
         updateTableStatus,
         addTable,
         cart,

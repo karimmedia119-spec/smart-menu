@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { useApp } from "../context/AppContext";
 import { useAuth } from "../context/AuthContext";
 import { UserRole } from "../types";
+import { TrialBanner } from "./TrialBanner";
 import {
   UtensilsCrossed,
   ChefHat,
@@ -21,6 +22,7 @@ import {
   UserCheck,
   Lock,
   Sparkles,
+  LogIn,
 } from "lucide-react";
 
 const ROLE_DISPLAY: Record<UserRole, { label: string; badge: string; color: string }> = {
@@ -121,8 +123,10 @@ export const Navbar: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 glass-panel border-b border-warm-border px-4 py-2.5 transition-all">
-      <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+    <>
+      <TrialBanner tenant={activeTenant} />
+      <header className="sticky top-0 z-50 glass-panel border-b border-warm-border px-4 py-2.5 transition-all">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         {/* Logo and Tenant Switcher */}
         <div className="flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 group">
@@ -373,8 +377,19 @@ export const Navbar: React.FC = () => {
               </>
             )}
           </div>
+
+          {/* Login / Auth Portal link */}
+          <Link
+            href="/login"
+            title="صفحة تسجيل الدخول وإدارة الحساب"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-warm-text font-bold text-xs transition-colors shadow-xs"
+          >
+            <LogIn className="w-3.5 h-3.5 text-warm-accent" />
+            <span className="hidden sm:inline">دخول</span>
+          </Link>
         </div>
       </div>
     </header>
-  );
+  </>
+);
 };

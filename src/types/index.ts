@@ -14,6 +14,7 @@ export interface User {
   role: UserRole;
   tenantId?: string; // null for SUPER_ADMIN
   avatarUrl?: string;
+  password?: string;
 }
 
 export interface TenantBranding {
@@ -44,6 +45,8 @@ export interface TenantSettings {
   ownerName: string;
   ownerPhone: string;
   createdAt: string;
+  onboardingCompleted?: boolean;
+  isSampleDataLoaded?: boolean;
 }
 
 export interface ModifierOption {

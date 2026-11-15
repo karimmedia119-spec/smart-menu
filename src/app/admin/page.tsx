@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Navbar } from "../../components/Navbar";
 import { RoleGuard } from "../../components/RoleGuard";
+import { OnboardingGuide } from "../../components/OnboardingGuide";
 import { useApp } from "../../context/AppContext";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -51,6 +52,8 @@ export default function AdminPage() {
     toggleProductAvailability,
     updateStockQuantity,
     addTable,
+    loadSampleMenuForTenant,
+    clearTenantMenu,
   } = useApp();
 
   const { currentRole } = useAuth();
@@ -508,13 +511,38 @@ export default function AdminPage() {
                 </p>
               </div>
 
-              <button
-                onClick={() => setIsAddingProduct(true)}
-                className="py-2.5 px-4 rounded-2xl bg-warm-text text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-stone-800 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                <span>إضافة صنف جديد للمنيو</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2">
+                {products.length === 0 ? (
+                  <button
+                    onClick={() => loadSampleMenuForTenant(activeTenant.id)}
+                    className="py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-colors"
+                  >
+                    <Zap className="w-4 h-4" />
+                    <span>تحميل قائمة تجريبية جاهزة</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if (confirm("هل أنت متأكد من مسح جميع الأصناف والبدء من الصفر بنظام نظيف؟")) {
+                        clearTenantMenu(activeTenant.id);
+                      }
+                    }}
+                    className="py-2.5 px-3 rounded-2xl bg-stone-100 hover:bg-rose-50 text-stone-600 hover:text-rose-700 font-bold text-xs flex items-center gap-1.5 border border-warm-border transition-colors"
+                    title="مسح القائمة والبدء بنظام فارغ"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>مسح القائمة للبدء من الصفر</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsAddingProduct(true)}
+                  className="py-2.5 px-4 rounded-2xl bg-warm-text text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-stone-800 transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>إضافة صنف جديد للمنيو</span>
+                </button>
+              </div>
             </div>
 
             {isAddingProduct && (
@@ -652,86 +680,98 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* Products List Table */}
-            <div className="bg-white rounded-3xl border border-warm-border overflow-hidden shadow-warm">
-              <div className="overflow-x-auto">
-                <table className="w-full text-right text-xs">
-                  <thead>
-                    <tr className="bg-warm-surface border-b border-warm-border text-warm-muted font-bold">
-                      <th className="py-3 px-4">الصورة</th>
-                      <th className="py-3 px-4">اسم الصنف</th>
-                      <th className="py-3 px-4">التصنيف</th>
-                      <th className="py-3 px-4">السعر</th>
-                      <th className="py-3 px-4">المخزون المتاح</th>
-                      <th className="py-3 px-4">الحالة (التوفر)</th>
-                      <th className="py-3 px-4">إجراءات</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-warm-border/60">
-                    {products.map((p) => {
-                      const cat = categories.find((c) => c.id === p.categoryId);
-                      return (
-                        <tr key={p.id} className="hover:bg-warm-surface/40 transition-colors">
-                          <td className="py-3 px-4">
-                            <img
-                              src={p.image}
-                              alt={p.name}
-                              className="w-12 h-12 rounded-xl object-cover border border-warm-border shadow-xs"
-                            />
-                          </td>
-                          <td className="py-3 px-4">
-                            <div className="font-extrabold text-warm-text">{p.name}</div>
-                            <div className="text-[11px] text-warm-muted line-clamp-1">
-                              {p.description}
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 font-semibold text-warm-muted">
-                            {cat?.name || "عام"}
-                          </td>
-                          <td className="py-3 px-4 font-black text-warm-accent">
-                            {p.price} ج.م
-                          </td>
-                          <td className="py-3 px-4 font-bold text-warm-text">
-                            {p.stockQuantity ?? 25} وجبة
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              onClick={() => toggleProductAvailability(p.id)}
-                              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border transition-colors ${
-                                p.isAvailable
-                                  ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                                  : "bg-rose-50 text-rose-800 border-rose-200"
-                              }`}
-                            >
-                              {p.isAvailable ? (
-                                <>
-                                  <ToggleRight className="w-4 h-4 text-emerald-600" />
-                                  <span>متوفر للطلب</span>
-                                </>
-                              ) : (
-                                <>
-                                  <ToggleLeft className="w-4 h-4 text-rose-600" />
-                                  <span>غير متوفر (نافذ)</span>
-                                </>
-                              )}
-                            </button>
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              onClick={() => deleteProduct(p.id)}
-                              className="p-1.5 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors"
-                              title="حذف من المنيو"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+            {/* Products List Table or Educational Onboarding Guide */}
+            {products.length === 0 ? (
+              <OnboardingGuide
+                tenant={activeTenant}
+                categoriesCount={categories.length}
+                productsCount={products.length}
+                tablesCount={tables.length}
+                onLoadSampleMenu={() => loadSampleMenuForTenant(activeTenant.id)}
+                onOpenAddProduct={() => setIsAddingProduct(true)}
+                onNavigateTab={(tab) => setActiveTab(tab as any)}
+              />
+            ) : (
+              <div className="bg-white rounded-3xl border border-warm-border overflow-hidden shadow-warm">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-right text-xs">
+                    <thead>
+                      <tr className="bg-warm-surface border-b border-warm-border text-warm-muted font-bold">
+                        <th className="py-3 px-4">الصورة</th>
+                        <th className="py-3 px-4">اسم الصنف</th>
+                        <th className="py-3 px-4">التصنيف</th>
+                        <th className="py-3 px-4">السعر</th>
+                        <th className="py-3 px-4">المخزون المتاح</th>
+                        <th className="py-3 px-4">الحالة (التوفر)</th>
+                        <th className="py-3 px-4">إجراءات</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-warm-border/60">
+                      {products.map((p) => {
+                        const cat = categories.find((c) => c.id === p.categoryId);
+                        return (
+                          <tr key={p.id} className="hover:bg-warm-surface/40 transition-colors">
+                            <td className="py-3 px-4">
+                              <img
+                                src={p.image}
+                                alt={p.name}
+                                className="w-12 h-12 rounded-xl object-cover border border-warm-border shadow-xs"
+                              />
+                            </td>
+                            <td className="py-3 px-4">
+                              <div className="font-extrabold text-warm-text">{p.name}</div>
+                              <div className="text-[11px] text-warm-muted line-clamp-1">
+                                {p.description}
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 font-semibold text-warm-muted">
+                              {cat?.name || "عام"}
+                            </td>
+                            <td className="py-3 px-4 font-black text-warm-accent">
+                              {p.price} ج.م
+                            </td>
+                            <td className="py-3 px-4 font-bold text-warm-text">
+                              {p.stockQuantity ?? 25} وجبة
+                            </td>
+                            <td className="py-3 px-4">
+                              <button
+                                onClick={() => toggleProductAvailability(p.id)}
+                                className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold border transition-colors ${
+                                  p.isAvailable
+                                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                                    : "bg-rose-50 text-rose-800 border-rose-200"
+                                }`}
+                              >
+                                {p.isAvailable ? (
+                                  <>
+                                    <ToggleRight className="w-4 h-4 text-emerald-600" />
+                                    <span>متوفر للطلب</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <ToggleLeft className="w-4 h-4 text-rose-600" />
+                                    <span>غير متوفر (نافذ)</span>
+                                  </>
+                                )}
+                              </button>
+                            </td>
+                            <td className="py-3 px-4">
+                              <button
+                                onClick={() => deleteProduct(p.id)}
+                                className="p-1.5 rounded-lg hover:bg-rose-50 text-stone-400 hover:text-rose-600 transition-colors"
+                                title="حذف من المنيو"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
