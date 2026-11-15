@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, UserRole } from "../types";
-import { DEMO_USERS } from "../lib/data";
+import { INITIAL_USERS } from "../lib/data";
 
 interface LoginResult {
   success: boolean;
@@ -26,6 +26,10 @@ interface AuthContextType {
   users: User[];
   login: (email: string, password: string) => LoginResult;
   registerUser: (params: RegisterParams) => User;
+  addAdminUser: (params: RegisterParams) => User;
+  updateAdminUser: (id: string, updates: Partial<User>) => void;
+  deleteAdminUser: (id: string) => void;
+  toggleUserStatus: (id: string) => void;
   logout: () => void;
   hasRole: (allowedRoles: UserRole[]) => boolean;
 }
@@ -36,7 +40,7 @@ const STORAGE_USER_KEY = "smart_menu_auth_user";
 const STORAGE_USERS_LIST = "smart_menu_registered_users";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [users, setUsers] = useState<User[]>(DEMO_USERS);
+  const [users, setUsers] = useState<User[]>(INITIAL_USERS);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Initialize from storage or stay logged out
@@ -45,13 +49,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // 1. Load any extra registered users from localStorage
       const savedUsersList = localStorage.getItem(STORAGE_USERS_LIST);
-      let allUsers = DEMO_USERS;
+      let allUsers = INITIAL_USERS;
       if (savedUsersList) {
         const parsed = JSON.parse(savedUsersList);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           allUsers = [
-            ...DEMO_USERS,
-            ...parsed.filter((p: User) => !DEMO_USERS.some((d) => d.email.toLowerCase() === p.email.toLowerCase())),
+            ...INITIAL_USERS,
+            ...parsed.filter((p: User) => !INITIAL_USERS.some((d) => d.email.toLowerCase() === p.email.toLowerCase())),
           ];
           setUsers(allUsers);
         }
@@ -90,8 +94,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
 
-    // Verify password (matches user password, or standard default passwords)
-    const validPasswords = [foundUser.password, "password123", "admin123", "123456"].filter(Boolean);
+    if (foundUser.isActive === false) {
+      return {
+        success: false,
+        error: "هذا الحساب موقوف من قبل الإدارة المركزية.",
+      };
+    }
+
+    // Verify password (matches user password or initial master passwords)
+    const validPasswords = [foundUser.password, "admin123456", "password123"].filter(Boolean);
     if (!validPasswords.includes(cleanPassword)) {
       return {
         success: false,
@@ -117,6 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       phone: params.phone || "",
       role: params.role,
       tenantId: params.tenantId,
+      createdAt: new Date().toISOString(),
+      isActive: true,
     };
 
     const updatedUsers = [...users, newUser];
@@ -125,11 +138,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       localStorage.setItem(STORAGE_USER_KEY, newUser.id);
-      const customUsers = updatedUsers.filter((u) => !DEMO_USERS.some((d) => d.id === u.id));
+      const customUsers = updatedUsers.filter((u) => !INITIAL_USERS.some((d) => d.id === u.id));
       localStorage.setItem(STORAGE_USERS_LIST, JSON.stringify(customUsers));
     } catch (e) {}
 
     return newUser;
+  };
+
+  const addAdminUser = (params: RegisterParams): User => {
+    const newUser: User = {
+      id: `usr-${Date.now()}`,
+      name: params.name,
+      email: params.email.trim().toLowerCase(),
+      password: params.password,
+      phone: params.phone || "",
+      role: params.role,
+      tenantId: params.tenantId,
+      createdAt: new Date().toISOString(),
+      isActive: true,
+    };
+
+    const updatedUsers = [...users, newUser];
+    setUsers(updatedUsers);
+
+    try {
+      const customUsers = updatedUsers.filter((u) => !INITIAL_USERS.some((d) => d.id === u.id));
+      localStorage.setItem(STORAGE_USERS_LIST, JSON.stringify(customUsers));
+    } catch (e) {}
+
+    return newUser;
+  };
+
+  const updateAdminUser = (id: string, updates: Partial<User>) => {
+    const updatedUsers = users.map((u) => (u.id === id ? { ...u, ...updates } : u));
+    setUsers(updatedUsers);
+    if (currentUser?.id === id) {
+      setCurrentUser({ ...currentUser, ...updates });
+    }
+    try {
+      const customUsers = updatedUsers.filter((u) => !INITIAL_USERS.some((d) => d.id === u.id));
+      localStorage.setItem(STORAGE_USERS_LIST, JSON.stringify(customUsers));
+    } catch (e) {}
+  };
+
+  const deleteAdminUser = (id: string) => {
+    const updatedUsers = users.filter((u) => u.id !== id);
+    setUsers(updatedUsers);
+    try {
+      const customUsers = updatedUsers.filter((u) => !INITIAL_USERS.some((d) => d.id === u.id));
+      localStorage.setItem(STORAGE_USERS_LIST, JSON.stringify(customUsers));
+    } catch (e) {}
+  };
+
+  const toggleUserStatus = (id: string) => {
+    const target = users.find((u) => u.id === id);
+    if (target) {
+      updateAdminUser(id, { isActive: target.isActive === false ? true : false });
+    }
   };
 
   const logout = () => {
@@ -157,6 +222,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         users,
         login,
         registerUser,
+        addAdminUser,
+        updateAdminUser,
+        deleteAdminUser,
+        toggleUserStatus,
         logout,
         hasRole,
       }}

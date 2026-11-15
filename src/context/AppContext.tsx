@@ -108,7 +108,7 @@ const AppContext = createContext<AppContextType | null>(null);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [tenants, setTenants] = useState<TenantSettings[]>(INITIAL_TENANTS);
-  const [activeTenantId, setActiveTenantIdState] = useState<string>("tenant-el-prince");
+  const [activeTenantId, setActiveTenantIdState] = useState<string>("tenant-first");
   const [categoriesList, setCategoriesList] = useState<Category[]>(INITIAL_CATEGORIES);
   const [productsList, setProductsList] = useState<Product[]>(INITIAL_PRODUCTS);
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);

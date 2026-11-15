@@ -52,15 +52,36 @@ export default function AdminPage() {
     toggleProductAvailability,
     updateStockQuantity,
     addTable,
-    loadSampleMenuForTenant,
     clearTenantMenu,
   } = useApp();
 
-  const { currentRole } = useAuth();
+  const {
+    currentRole,
+    users,
+    addAdminUser,
+    updateAdminUser,
+    deleteAdminUser,
+    toggleUserStatus,
+  } = useAuth();
 
   const [activeTab, setActiveTab] = useState<
-    "super_admin_hub" | "menu_manager" | "tables_qr" | "inventory" | "subscriptions" | "tenant_settings" | "plans"
+    "super_admin_hub" | "admin_users" | "menu_manager" | "tables_qr" | "inventory" | "subscriptions" | "tenant_settings" | "plans"
   >(currentRole === "SUPER_ADMIN" ? "super_admin_hub" : "menu_manager");
+
+  // Admin Accounts Management State
+  const [isAddingAdmin, setIsAddingAdmin] = useState(false);
+  const [adminName, setAdminName] = useState("");
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPassword, setAdminPassword] = useState("");
+  const [adminPhone, setAdminPhone] = useState("");
+  const [adminRole, setAdminRole] = useState<"SUPER_ADMIN" | "TENANT_ADMIN" | "CASHIER" | "KITCHEN">("TENANT_ADMIN");
+  const [adminTenantId, setAdminTenantId] = useState(tenants[0]?.id || "");
+  const [adminSearch, setAdminSearch] = useState("");
+  const [adminRoleFilter, setAdminRoleFilter] = useState<string>("ALL");
+  const [adminError, setAdminError] = useState<string | null>(null);
+  const [adminSuccess, setAdminSuccess] = useState<string | null>(null);
+  const [resettingUserId, setResettingUserId] = useState<string | null>(null);
+  const [newResetPassword, setNewResetPassword] = useState("");
 
   // Tenant customization form state
   const [stationLabel, setStationLabel] = useState(activeTenant.stationLabel);
@@ -99,6 +120,46 @@ export default function AdminPage() {
     setServiceFeePercentage(activeTenant.branding.serviceFeePercentage);
     setRequireCashierApproval(activeTenant.requireCashierApproval);
   }, [activeTenant]);
+
+  const handleCreateAdminUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminError(null);
+    if (!adminName.trim() || !adminEmail.trim() || !adminPassword.trim()) {
+      setAdminError("يرجى ملء كافة الحقول الإلزامية");
+      return;
+    }
+    const normalized = adminEmail.trim().toLowerCase();
+    if (users.some((u) => u.email.toLowerCase() === normalized)) {
+      setAdminError("هذا البريد الإلكتروني مسجل بالفعل لمستخدم آخر");
+      return;
+    }
+
+    addAdminUser({
+      name: adminName.trim(),
+      email: normalized,
+      password: adminPassword.trim(),
+      phone: adminPhone.trim(),
+      role: adminRole,
+      tenantId: adminRole === "SUPER_ADMIN" ? undefined : (adminTenantId || tenants[0]?.id),
+    });
+
+    setAdminName("");
+    setAdminEmail("");
+    setAdminPassword("");
+    setAdminPhone("");
+    setIsAddingAdmin(false);
+    setAdminSuccess("تم إنشاء حساب الأدمن بنجاح");
+    setTimeout(() => setAdminSuccess(null), 3000);
+  };
+
+  const handleResetUserPassword = (userId: string) => {
+    if (!newResetPassword.trim()) return;
+    updateAdminUser(userId, { password: newResetPassword.trim() });
+    setResettingUserId(null);
+    setNewResetPassword("");
+    setAdminSuccess("تم تحديث كلمة المرور بنجاح");
+    setTimeout(() => setAdminSuccess(null), 3000);
+  };
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,17 +246,34 @@ export default function AdminPage() {
             {/* Navigation Tabs */}
             <div className="flex items-center bg-warm-surface p-1 rounded-2xl border border-warm-border overflow-x-auto">
               {currentRole === "SUPER_ADMIN" && (
-                <button
-                  onClick={() => setActiveTab("super_admin_hub")}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
-                    activeTab === "super_admin_hub"
-                      ? "bg-purple-700 text-white shadow-sm"
-                      : "text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200"
-                  }`}
-                >
-                  <Zap className="w-3.5 h-3.5" />
-                  <span>تراخيص المنصة (Super Admin)</span>
-                </button>
+                <>
+                  <button
+                    onClick={() => setActiveTab("super_admin_hub")}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                      activeTab === "super_admin_hub"
+                        ? "bg-purple-700 text-white shadow-sm"
+                        : "text-purple-800 bg-purple-50 hover:bg-purple-100 border border-purple-200"
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>التحكم في الاشتراكات</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab("admin_users")}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                      activeTab === "admin_users"
+                        ? "bg-indigo-700 text-white shadow-sm"
+                        : "text-indigo-800 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200"
+                    }`}
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>حسابات الأدمن والمدراء</span>
+                    <span className="px-1.5 py-0.2 rounded-full bg-indigo-200 text-indigo-900 text-[10px]">
+                      {users.length}
+                    </span>
+                  </button>
+                </>
               )}
               <button
                 onClick={() => setActiveTab("menu_manager")}
@@ -497,6 +575,358 @@ export default function AdminPage() {
           </div>
         )}
 
+        {/* TAB: ADMIN USERS MANAGEMENT (SUPER ADMIN ONLY) */}
+        {activeTab === "admin_users" && (
+          <div className="space-y-6 animate-fadeIn">
+            {/* Success and Error messages */}
+            {adminSuccess && (
+              <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>{adminSuccess}</span>
+              </div>
+            )}
+            {adminError && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-bold flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <span>{adminError}</span>
+              </div>
+            )}
+
+            {/* Header Box */}
+            <div className="bg-gradient-to-r from-indigo-900 to-slate-900 text-white p-6 md:p-8 rounded-3xl shadow-warm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-800/80 border border-indigo-600 text-indigo-200 text-xs font-bold mb-3">
+                  <Users className="w-3.5 h-3.5 text-amber-300" />
+                  <span>إدارة حسابات الأدمن ومدراء النظام (RBAC Accounts)</span>
+                </div>
+                <h2 className="text-2xl md:text-3xl font-black tracking-tight">
+                  التحكم في حسابات الأشخاص الذين يديرون النظام
+                </h2>
+                <p className="text-xs md:text-sm text-indigo-200/80 mt-1.5 max-w-2xl leading-relaxed">
+                  أنشئ حسابات مدراء المطاعم والفروع، عيّن المنشآت والصلاحيات، وقم بإعادة تعيين كلمات المرور أو إيقاف الحسابات مباشرة وبأمان تام.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setIsAddingAdmin(!isAddingAdmin)}
+                className="px-4 py-2.5 rounded-2xl bg-white text-indigo-950 hover:bg-stone-100 font-black text-xs transition-colors shadow-sm flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4 text-indigo-900" />
+                <span>إضافة حساب مدير جديد</span>
+              </button>
+            </div>
+
+            {/* Metrics */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-3xl border border-warm-border shadow-warm text-right">
+                <div className="text-xs text-warm-muted font-bold">إجمالي الحسابات</div>
+                <div className="text-2xl font-black text-warm-text mt-1">{users.length}</div>
+                <div className="text-[10px] text-warm-muted">مستخدم مسجل في النظام</div>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-blue-200 shadow-warm bg-blue-50/20 text-right">
+                <div className="text-xs text-blue-800 font-bold">مدراء الفروع (Tenant Admin)</div>
+                <div className="text-2xl font-black text-blue-700 mt-1">
+                  {users.filter((u) => u.role === "TENANT_ADMIN").length}
+                </div>
+                <div className="text-[10px] text-blue-600">إدارة منيو وفروع</div>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-purple-200 shadow-warm bg-purple-50/20 text-right">
+                <div className="text-xs text-purple-800 font-bold">ملاك المنصة (Super Admin)</div>
+                <div className="text-2xl font-black text-purple-700 mt-1">
+                  {users.filter((u) => u.role === "SUPER_ADMIN").length}
+                </div>
+                <div className="text-[10px] text-purple-600">تحكم واشتراكات كاملة</div>
+              </div>
+              <div className="bg-white p-5 rounded-3xl border border-emerald-200 shadow-warm bg-emerald-50/20 text-right">
+                <div className="text-xs text-emerald-800 font-bold">الحسابات النشطة</div>
+                <div className="text-2xl font-black text-emerald-700 mt-1">
+                  {users.filter((u) => u.isActive !== false).length}
+                </div>
+                <div className="text-[10px] text-emerald-600">جاهزة للعمل وتسجيل الدخول</div>
+              </div>
+            </div>
+
+            {/* Add New Admin Form (when expanded) */}
+            {isAddingAdmin && (
+              <div className="bg-white p-6 md:p-8 rounded-3xl border border-indigo-200 shadow-warmLg space-y-4 animate-fadeIn text-right">
+                <div className="flex justify-between items-center border-b border-warm-border pb-3">
+                  <h3 className="font-black text-sm text-warm-text flex items-center gap-2">
+                    <Plus className="w-4 h-4 text-indigo-600" />
+                    <span>إنشاء حساب مدير جديد للنظام</span>
+                  </h3>
+                  <button
+                    onClick={() => setIsAddingAdmin(false)}
+                    className="text-xs text-stone-500 hover:text-stone-800 font-bold"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+
+                <form onSubmit={handleCreateAdminUser} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-warm-text block">الاسم الكامل: *</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="مثال: م. محمود عبد الله"
+                        value={adminName}
+                        onChange={(e) => setAdminName(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-warm-text block">البريد الإلكتروني (لتسجيل الدخول): *</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="manager@restaurant.com"
+                        value={adminEmail}
+                        onChange={(e) => setAdminEmail(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-warm-text block">كلمة المرور: *</label>
+                      <input
+                        type="password"
+                        required
+                        placeholder="••••••••"
+                        value={adminPassword}
+                        onChange={(e) => setAdminPassword(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-warm-text block">نوع الصلاحية (الدور):</label>
+                      <select
+                        value={adminRole}
+                        onChange={(e) => setAdminRole(e.target.value as any)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text font-bold"
+                      >
+                        <option value="TENANT_ADMIN">مدير منشأة / مطعم (Tenant Admin)</option>
+                        <option value="SUPER_ADMIN">مالك المنصة المركزي (Super Admin)</option>
+                        <option value="CASHIER">كاشير ونقاط البيع (Cashier)</option>
+                        <option value="KITCHEN">محطة التجهيز والمطبخ (Kitchen)</option>
+                      </select>
+                    </div>
+
+                    {adminRole !== "SUPER_ADMIN" && (
+                      <div className="space-y-1">
+                        <label className="text-xs font-bold text-warm-text block">المنشأة / الفرع التابع له:</label>
+                        <select
+                          value={adminTenantId}
+                          onChange={(e) => setAdminTenantId(e.target.value)}
+                          className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text font-bold"
+                        >
+                          {tenants.map((t) => (
+                            <option key={t.id} value={t.id}>
+                              {t.name} ({t.businessType})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-warm-text block">رقم الهاتف للتواصل:</label>
+                      <input
+                        type="tel"
+                        placeholder="010xxxxxxxx"
+                        value={adminPhone}
+                        onChange={(e) => setAdminPhone(e.target.value)}
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddingAdmin(false)}
+                      className="px-4 py-2.5 rounded-xl bg-warm-surface border border-warm-border text-xs font-bold text-warm-muted hover:text-warm-text"
+                    >
+                      إلغاء
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-black text-xs transition-colors shadow-sm"
+                    >
+                      حفظ وإنشاء الحساب
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Admins Table / List */}
+            <div className="bg-white p-6 rounded-3xl border border-warm-border shadow-warm space-y-4 text-right">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-3 border-b border-warm-border">
+                <div>
+                  <h3 className="text-base font-black text-warm-text">سجل مدراء النظام والأدمن</h3>
+                  <p className="text-xs text-warm-muted">الأشخاص المخولون بإدارة المنظومة والفروع</p>
+                </div>
+
+                {/* Filter and Search */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <input
+                    type="text"
+                    placeholder="بحث بالاسم أو البريد..."
+                    value={adminSearch}
+                    onChange={(e) => setAdminSearch(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text"
+                  />
+                  <select
+                    value={adminRoleFilter}
+                    onChange={(e) => setAdminRoleFilter(e.target.value)}
+                    className="px-3 py-1.5 rounded-xl bg-warm-surface border border-warm-border text-xs text-warm-text font-bold"
+                  >
+                    <option value="ALL">جميع الأدوار</option>
+                    <option value="SUPER_ADMIN">مالك المنصة</option>
+                    <option value="TENANT_ADMIN">مدير المنشأة</option>
+                    <option value="CASHIER">الكاشير</option>
+                    <option value="KITCHEN">المطبخ</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Users Cards */}
+              <div className="space-y-3">
+                {users
+                  .filter((u) => {
+                    const matchSearch =
+                      u.name.toLowerCase().includes(adminSearch.toLowerCase()) ||
+                      u.email.toLowerCase().includes(adminSearch.toLowerCase());
+                    const matchRole = adminRoleFilter === "ALL" || u.role === adminRoleFilter;
+                    return matchSearch && matchRole;
+                  })
+                  .map((user) => {
+                    const assignedTenant = tenants.find((t) => t.id === user.tenantId);
+                    const isActive = user.isActive !== false;
+
+                    return (
+                      <div
+                        key={user.id}
+                        className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                          !isActive
+                            ? "bg-stone-50 border-stone-200 opacity-60"
+                            : "bg-white border-warm-border hover:border-indigo-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-11 h-11 rounded-2xl flex items-center justify-center font-black text-sm shrink-0 ${
+                              user.role === "SUPER_ADMIN"
+                                ? "bg-purple-100 text-purple-800 border border-purple-300"
+                                : user.role === "TENANT_ADMIN"
+                                ? "bg-blue-100 text-blue-800 border border-blue-300"
+                                : "bg-stone-100 text-stone-800 border border-stone-300"
+                            }`}
+                          >
+                            {user.name.substring(0, 1)}
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-extrabold text-xs text-warm-text">{user.name}</span>
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded-md border font-mono ${
+                                  user.role === "SUPER_ADMIN"
+                                    ? "bg-purple-50 text-purple-800 border-purple-200"
+                                    : user.role === "TENANT_ADMIN"
+                                    ? "bg-blue-50 text-blue-800 border-blue-200"
+                                    : "bg-stone-50 text-stone-800 border-stone-200"
+                                }`}
+                              >
+                                {user.role}
+                              </span>
+                              {!isActive && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-md bg-rose-100 text-rose-800 font-bold">
+                                  موقوف
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-warm-muted flex items-center gap-3 mt-1">
+                              <span>البريد: <strong className="text-warm-text font-mono">{user.email}</strong></span>
+                              {user.phone && <span>الهاتف: {user.phone}</span>}
+                              {assignedTenant && (
+                                <span>الفرع: <strong className="text-indigo-700">{assignedTenant.name}</strong></span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          {resettingUserId === user.id ? (
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="password"
+                                placeholder="كلمة المرور الجديدة"
+                                value={newResetPassword}
+                                onChange={(e) => setNewResetPassword(e.target.value)}
+                                className="px-2.5 py-1.5 rounded-xl border border-warm-border text-xs w-36"
+                              />
+                              <button
+                                onClick={() => handleResetUserPassword(user.id)}
+                                className="px-2.5 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs"
+                              >
+                                حفظ
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setResettingUserId(null);
+                                  setNewResetPassword("");
+                                }}
+                                className="px-2 py-1.5 text-xs text-stone-500"
+                              >
+                                إلغاء
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setResettingUserId(user.id)}
+                              className="px-2.5 py-1.5 rounded-xl bg-warm-surface hover:bg-stone-100 border border-warm-border text-xs font-bold text-warm-text"
+                            >
+                              تغيير الرمز
+                            </button>
+                          )}
+
+                          <button
+                            onClick={() => toggleUserStatus(user.id)}
+                            className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition-colors ${
+                              isActive
+                                ? "bg-stone-100 hover:bg-amber-50 text-stone-700 border-warm-border"
+                                : "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            }`}
+                          >
+                            {isActive ? "إيقاف" : "تفعيل"}
+                          </button>
+
+                          {user.role !== "SUPER_ADMIN" && (
+                            <button
+                              onClick={() => {
+                                if (confirm(`هل أنت متأكد من حذف حساب الأدمن [${user.name}]؟`)) {
+                                  deleteAdminUser(user.id);
+                                }
+                              }}
+                              className="p-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors"
+                              title="حذف الحساب"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB 1: MENU MANAGER */}
         {activeTab === "menu_manager" && (
           <div className="space-y-6">
@@ -512,15 +942,7 @@ export default function AdminPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {products.length === 0 ? (
-                  <button
-                    onClick={() => loadSampleMenuForTenant(activeTenant.id)}
-                    className="py-2.5 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-xs flex items-center gap-1.5 shadow-sm transition-colors"
-                  >
-                    <Zap className="w-4 h-4" />
-                    <span>تحميل قائمة تجريبية جاهزة</span>
-                  </button>
-                ) : (
+                {products.length > 0 && (
                   <button
                     onClick={() => {
                       if (confirm("هل أنت متأكد من مسح جميع الأصناف والبدء من الصفر بنظام نظيف؟")) {
@@ -687,7 +1109,6 @@ export default function AdminPage() {
                 categoriesCount={categories.length}
                 productsCount={products.length}
                 tablesCount={tables.length}
-                onLoadSampleMenu={() => loadSampleMenuForTenant(activeTenant.id)}
                 onOpenAddProduct={() => setIsAddingProduct(true)}
                 onNavigateTab={(tab) => setActiveTab(tab as any)}
               />

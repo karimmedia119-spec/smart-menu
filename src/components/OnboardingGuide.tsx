@@ -8,10 +8,7 @@ import {
   Utensils,
   Plus,
   QrCode,
-  ChefHat,
-  ArrowRight,
   BookOpen,
-  Zap,
 } from "lucide-react";
 import { TenantSettings } from "../types";
 
@@ -20,7 +17,6 @@ interface OnboardingGuideProps {
   categoriesCount: number;
   productsCount: number;
   tablesCount: number;
-  onLoadSampleMenu: () => void;
   onOpenAddProduct: () => void;
   onNavigateTab: (tab: "menu_manager" | "tables_qr" | "tenant_settings") => void;
 }
@@ -30,12 +26,11 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({
   categoriesCount,
   productsCount,
   tablesCount,
-  onLoadSampleMenu,
   onOpenAddProduct,
   onNavigateTab,
 }) => {
   // Step completion calculation
-  const hasBranding = tenant.name && tenant.stationLabel;
+  const hasBranding = !!(tenant.name && tenant.stationLabel);
   const hasCategories = categoriesCount > 0;
   const hasProducts = productsCount > 0;
   const hasTables = tablesCount > 0;
@@ -53,12 +48,11 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({
             <span>دليل البدء السريع وإرشادات التشغيل</span>
           </div>
           <h2 className="text-xl md:text-2xl font-black text-warm-text tracking-tight">
-            مرحباً بك في منصة Smart Menu!
+            مرحباً بك في لوحة تحكم المنشأة
           </h2>
           <p className="text-xs text-warm-muted mt-1 leading-relaxed max-w-xl">
-            نشاطك التجاري <strong className="text-warm-text">[{tenant.name}]</strong> جاهز ومفعل بفترة
-            تجربة مجانية لمدة أسبوع (7 أيام). اتبع هذه الخطوات البسيطة لإطلاق قائمتك الذكية واستقبال
-            أول طلب في صالتك!
+            نشاطك التجاري <strong className="text-warm-text">[{tenant.name}]</strong> جاهز للعمل.
+            اتبع هذه الخطوات لإطلاق قائمتك الحقيقية والبدء في استقبال الطلبات.
           </p>
         </div>
 
@@ -129,7 +123,7 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({
               <span className="text-[10px] font-bold text-warm-muted">الخطوة 2</span>
             </div>
             <p className="text-[11px] text-warm-muted mt-1 leading-relaxed">
-              تنظيم الأطباق في أقسام واضحة (مقبلات، أطباق رئيسية، مشروبات، حلويات).
+              تنظيم الأطباق في أقسام واضحة خاصة بنشاطك التجاري.
             </p>
           </div>
         </div>
@@ -152,11 +146,11 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({
           </div>
           <div className="flex-1">
             <div className="flex items-center justify-between">
-              <h4 className="font-extrabold text-xs text-warm-text">3. إضافة الأطباق والأسعار</h4>
+              <h4 className="font-extrabold text-xs text-warm-text">3. إضافة المنتجات والأسعار</h4>
               <span className="text-[10px] font-bold text-warm-muted">الخطوة 3</span>
             </div>
             <p className="text-[11px] text-warm-muted mt-1 leading-relaxed">
-              رفع صور الأطباق وتحديد الأسعار وخيارات الحجم والإضافات وإدارة المخزون.
+              إضافة المنتجات الحقيقية، الصور، الأسعار، والإضافات.
             </p>
           </div>
         </div>
@@ -189,35 +183,24 @@ export const OnboardingGuide: React.FC<OnboardingGuideProps> = ({
         </div>
       </div>
 
-      {/* Quick Action Bar for Instant Setup */}
-      <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-right">
-        <div className="flex items-center gap-2">
-          <Zap className="w-5 h-5 text-warm-accent shrink-0" />
-          <div>
-            <div className="text-xs font-black text-warm-text">
-              تريد تجربة شكل المنظومة كاملة فوراً دون إدخال بيانات يدوية؟
-            </div>
-            <div className="text-[11px] text-warm-muted">
-              يمكنك بضغطة زر واحدة تحميل قائمة طعام وأقسام وطاولات تجريبية للمعاينة الحية والتجربة.
-            </div>
+      {/* Action Bar */}
+      <div className="p-4 rounded-2xl bg-warm-surface border border-warm-border flex flex-col sm:flex-row items-center justify-between gap-3 text-right">
+        <div>
+          <div className="text-xs font-black text-warm-text">
+            ابدأ بتسجيل أول صنف أو قسم في قائمتك الآن:
+          </div>
+          <div className="text-[11px] text-warm-muted">
+            جميع البيانات المدخلة ستكون بياناتك الحقيقية الخاصة بنشاطك التجاري.
           </div>
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
-            onClick={onLoadSampleMenu}
+            onClick={onOpenAddProduct}
             className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-warm-accent hover:bg-amber-600 text-white font-black text-xs transition-all shadow-warm flex items-center justify-center gap-1.5 whitespace-nowrap"
           >
-            <Zap className="w-4 h-4" />
-            <span>تحميل قائمة تجريبية جاهزة</span>
-          </button>
-
-          <button
-            onClick={onOpenAddProduct}
-            className="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-white hover:bg-stone-50 border border-warm-border text-warm-text font-bold text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 whitespace-nowrap"
-          >
             <Plus className="w-4 h-4" />
-            <span>إضافة صنف من الصفر</span>
+            <span>إضافة صنف جديد</span>
           </button>
         </div>
       </div>

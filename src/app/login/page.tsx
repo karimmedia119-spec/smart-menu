@@ -8,7 +8,6 @@ import { useApp } from "../../context/AppContext";
 import {
   Lock,
   Mail,
-  Building2,
   ArrowRight,
   Sparkles,
   CheckCircle2,
@@ -16,8 +15,6 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
-  KeyRound,
-  Info,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -72,13 +69,6 @@ export default function LoginPage() {
       setIsLoading(false);
       setErrorMsg(result.error || "البريد الإلكتروني أو كلمة المرور غير صحيحة");
     }
-  };
-
-  // Helper function to fill form inputs manually for convenience (without submitting/auto-logging in)
-  const fillInputFields = (fillEmail: string, fillPass: string) => {
-    setEmail(fillEmail);
-    setPassword(fillPass);
-    setErrorMsg(null);
   };
 
   const handleRegisterNewTenant = (e: React.FormEvent) => {
@@ -275,75 +265,6 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
-
-            {/* Test Accounts Reference Card (Pure helper to view email/pass to type) */}
-            <div className="mt-6 pt-5 border-t border-warm-border text-right">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold text-warm-text flex items-center gap-1.5">
-                  <KeyRound className="w-3.5 h-3.5 text-warm-accent" />
-                  <span>بيانات حسابات النظام (للتجربة والاختبار):</span>
-                </span>
-                <span className="text-[10px] text-warm-muted">كلمة المرور: password123</span>
-              </div>
-
-              <div className="space-y-1.5 text-xs">
-                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-warm-text text-[11px] block">مالك المنصة (Super Admin)</span>
-                    <code className="text-[10px] text-purple-700 font-mono">superadmin@smartmenu.app</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fillInputFields("superadmin@smartmenu.app", "password123")}
-                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
-                  >
-                    تعبئة الحقول
-                  </button>
-                </div>
-
-                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-warm-text text-[11px] block">مدير المطعم (Tenant Admin)</span>
-                    <code className="text-[10px] text-blue-700 font-mono">prince@smartmenu.app</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fillInputFields("prince@smartmenu.app", "password123")}
-                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
-                  >
-                    تعبئة الحقول
-                  </button>
-                </div>
-
-                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-warm-text text-[11px] block">الكاشير (Cashier POS)</span>
-                    <code className="text-[10px] text-emerald-700 font-mono">cashier@smartmenu.app</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fillInputFields("cashier@smartmenu.app", "password123")}
-                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
-                  >
-                    تعبئة الحقول
-                  </button>
-                </div>
-
-                <div className="p-2 rounded-xl bg-warm-surface border border-warm-border flex items-center justify-between">
-                  <div>
-                    <span className="font-bold text-warm-text text-[11px] block">محطة التجهيز والمطبخ (Kitchen)</span>
-                    <code className="text-[10px] text-amber-700 font-mono">chef@smartmenu.app</code>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fillInputFields("chef@smartmenu.app", "password123")}
-                    className="px-2 py-1 rounded-lg bg-white border border-warm-border hover:bg-stone-50 text-[10px] font-bold text-warm-text transition-colors"
-                  >
-                    تعبئة الحقول
-                  </button>
-                </div>
-              </div>
-            </div>
           </div>
         ) : (
           <div>

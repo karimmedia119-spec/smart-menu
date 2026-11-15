@@ -15,6 +15,8 @@ export interface User {
   tenantId?: string; // null for SUPER_ADMIN
   avatarUrl?: string;
   password?: string;
+  createdAt?: string;
+  isActive?: boolean;
 }
 
 export interface TenantBranding {
