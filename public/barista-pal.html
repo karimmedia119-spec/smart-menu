@@ -1,0 +1,2061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Barista Pal — Craft Your Coffee & Drink</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Courier+Prime:wght@400;700&family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --amber: #d97706;
+      --amber-d: #b45309;
+      --amber-l: #fef3c7;
+      --coffee: #3b2219;
+      --coffee-d: #23120b;
+      --coffee-l: #eedfd2;
+      --foam: #fff9f2;
+      --espresso: #2e170e;
+      --matcha: #5a7d36;
+      --caramel: #c8822a;
+      --u: calc(min(100vw, 177.78vh) / 100);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      cursor: none;
+      background: #1a120b;
+      font-family: 'Fredoka', sans-serif;
+      color: var(--coffee-d);
+    }
+
+    /* Fixed Warm Italian Marble & Walnut Countertop */
+    #counter {
+      position: fixed;
+      inset: -2%;
+      background: 
+        radial-gradient(circle at 50% 30%, rgba(255,248,235,0.08), transparent 60%),
+        linear-gradient(135deg, #2c1a11 0%, #1f120c 50%, #150b07 100%);
+      box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.7);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Realistic Barista Wooden Board overlay */
+    #counter::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.8;
+    }
+
+    /* 16:9 Contained Interactive Scene */
+    #scene {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(100 * var(--u));
+      height: calc(56.25 * var(--u));
+      z-index: 2;
+      overflow: visible;
+    }
+
+    /* Top Nav Band */
+    #band {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(3.1 * var(--u));
+      background-color: var(--amber);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 calc(2.4 * var(--u));
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+
+    #band::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: calc(0.7 * var(--u));
+      background: radial-gradient(circle at 50% 0, var(--amber) 70%, transparent 72%);
+      background-size: calc(1.4 * var(--u)) calc(0.7 * var(--u));
+      background-repeat: repeat-x;
+      pointer-events: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: calc(1.8 * var(--u));
+    }
+
+    .nav-link {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: calc(1.05 * var(--u));
+      color: var(--coffee-d);
+      text-decoration: none;
+      position: relative;
+      cursor: none;
+      transition: color 0.15s;
+    }
+
+    .nav-link.active-link {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .switch-mode-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      background: var(--coffee-d);
+      color: #fff;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      padding: calc(0.3 * var(--u)) calc(0.9 * var(--u));
+      border-radius: 999px;
+      cursor: none;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .switch-mode-btn:hover {
+      transform: translateY(-2px);
+      background: #000;
+    }
+
+    /* Logo at (2.2u, 4.6u) */
+    #logo-wrap {
+      position: absolute;
+      left: calc(2.2 * var(--u));
+      top: calc(4.6 * var(--u));
+      display: flex;
+      align-items: center;
+      gap: calc(1.2 * var(--u));
+      z-index: 90;
+    }
+
+    .brand-title {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(3.8 * var(--u));
+      line-height: 0.82;
+      display: flex;
+      flex-direction: column;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.4));
+    }
+
+    .brand-barista {
+      color: #fff;
+      -webkit-text-stroke: calc(0.12 * var(--u)) var(--coffee-d);
+      paint-order: stroke fill;
+    }
+
+    .brand-pal {
+      color: var(--amber);
+      -webkit-text-stroke: calc(0.12 * var(--u)) var(--coffee-d);
+      paint-order: stroke fill;
+    }
+
+    .brand-sub {
+      font-family: 'Caveat Brush', cursive;
+      color: var(--amber-l);
+      font-size: calc(1.8 * var(--u));
+      line-height: 1.1;
+      transform: rotate(-5deg);
+      margin-top: calc(0.6 * var(--u));
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Stickers */
+    .sticker {
+      position: absolute;
+      font-family: 'Caveat Brush', cursive;
+      pointer-events: none;
+      z-index: 85;
+      filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4));
+    }
+
+    .sticker-specialty {
+      top: calc(4.6 * var(--u));
+      right: calc(3 * var(--u));
+      color: var(--amber-l);
+      font-size: calc(2 * var(--u));
+      transform: rotate(3deg);
+    }
+
+    .sticker-yourway {
+      left: calc(2 * var(--u));
+      top: calc(51.6 * var(--u));
+      color: var(--amber);
+      font-size: calc(2.2 * var(--u));
+      transform: rotate(-3deg);
+    }
+
+    .sticker-roasted {
+      right: calc(3 * var(--u));
+      bottom: calc(1.5 * var(--u));
+      color: #fff;
+      font-size: calc(2.4 * var(--u));
+      transform: rotate(-6deg);
+    }
+
+    /* INTRO SCREEN (Closed Specialty Coffee Box / Cup) */
+    #intro-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      pointer-events: auto;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .intro-cup-wrap {
+      position: absolute;
+      left: calc(36 * var(--u));
+      top: calc(14 * var(--u));
+      width: calc(28 * var(--u));
+      height: calc(32 * var(--u));
+      cursor: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .intro-cup-wrap:hover {
+      transform: translateY(-8px) scale(1.03);
+    }
+
+    .intro-cup-graphic {
+      width: calc(18 * var(--u));
+      height: calc(26 * var(--u));
+      background: linear-gradient(to right, #24140b, #442718, #24140b);
+      border-radius: calc(1 * var(--u)) calc(1 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u));
+      border: 3px solid rgba(255,255,255,0.15);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.6);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .intro-cup-sleeve {
+      width: 104%;
+      height: calc(11 * var(--u));
+      background: var(--amber);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+
+    .intro-cup-lid {
+      position: absolute;
+      top: calc(-2.8 * var(--u));
+      width: 108%;
+      height: calc(2.8 * var(--u));
+      background: #f8f6f0;
+      border-radius: 999px 999px 2px 2px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .intro-copy {
+      position: absolute;
+      left: calc(6 * var(--u));
+      top: calc(17 * var(--u));
+      max-width: calc(27 * var(--u));
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .intro-headline {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(3.4 * var(--u));
+      line-height: 1.05;
+      color: var(--amber-l);
+      margin: 0 0 calc(0.8 * var(--u)) 0;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.7);
+    }
+
+    .intro-desc {
+      font-size: calc(1.1 * var(--u));
+      color: #d1b8a5;
+      line-height: 1.45;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .intro-brew-btn {
+      position: absolute;
+      top: calc(47 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--amber);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.5 * var(--u));
+      padding: calc(0.8 * var(--u)) calc(2.6 * var(--u));
+      border-radius: 999px;
+      border: none;
+      box-shadow: 0 calc(0.4 * var(--u)) 0 var(--amber-d), 0 calc(0.8 * var(--u)) calc(1.6 * var(--u)) rgba(0,0,0,0.5);
+      cursor: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .intro-brew-btn:hover {
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 calc(0.5 * var(--u)) 0 var(--amber-d), 0 calc(1 * var(--u)) calc(2 * var(--u)) rgba(0,0,0,0.6);
+    }
+
+    /* Open State */
+    body.open #intro-screen {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-20px) scale(0.96);
+    }
+
+    /* BUILDER CANVAS & STATIONS */
+    #builder {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    body.open #builder {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Left Side: Coffee Bases & Pitchers */
+    .barista-item {
+      position: absolute;
+      width: calc(9.4 * var(--u));
+      height: calc(9.4 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .barista-item:hover {
+      transform: translateY(-5px) scale(1.05);
+    }
+
+    .pitcher-graphic {
+      width: 100%;
+      height: 100%;
+      background: #25160e;
+      border: 2px solid rgba(255,255,255,0.15);
+      border-radius: calc(1.2 * var(--u));
+      box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .pitcher-icon {
+      font-size: calc(3.4 * var(--u));
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+    }
+
+    .barista-tag {
+      position: absolute;
+      bottom: calc(-1.8 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--amber);
+      color: #fff;
+      padding: calc(0.2 * var(--u)) calc(0.7 * var(--u));
+      border-radius: 999px;
+      font-size: calc(0.72 * var(--u));
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      transition: background 0.2s;
+    }
+
+    .barista-tag.used {
+      background: #10b981;
+    }
+
+    /* Top: Syrups & Flavor Bottles */
+    .syrup-bottle {
+      position: absolute;
+      top: calc(4.2 * var(--u));
+      width: calc(5.2 * var(--u));
+      height: calc(16 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+    }
+
+    .syrup-bottle:hover {
+      transform: translateY(-6px) rotate(-3deg);
+    }
+
+    .syrup-bottle.lifted {
+      opacity: 0.15;
+    }
+
+    .syrup-graphic {
+      width: 100%;
+      height: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.2);
+      border-radius: calc(1 * var(--u));
+      box-shadow: 0 10px 20px rgba(0,0,0,0.45);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: calc(0.5 * var(--u)) 0;
+      position: relative;
+    }
+
+    .syrup-pump {
+      width: calc(2 * var(--u));
+      height: calc(3.5 * var(--u));
+      background: #silver;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .syrup-liquid-fill {
+      width: 80%;
+      height: 60%;
+      border-radius: 4px;
+      margin-top: auto;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
+    }
+
+    .syrup-label {
+      position: absolute;
+      bottom: calc(-1 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--coffee-l);
+      color: var(--coffee-d);
+      border: 1.5px solid var(--amber);
+      padding: calc(0.2 * var(--u)) calc(0.6 * var(--u));
+      border-radius: 999px;
+      font-size: calc(0.7 * var(--u));
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+    }
+
+    /* CENTERPIECE: TALL GLASS BARISTA CUP */
+    #barista-station {
+      position: absolute;
+      left: calc(34 * var(--u));
+      top: calc(18 * var(--u));
+      width: calc(32 * var(--u));
+      height: calc(31 * var(--u));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    /* Coaster / Tray */
+    .barista-mat {
+      position: absolute;
+      bottom: 0;
+      width: calc(30 * var(--u));
+      height: calc(6 * var(--u));
+      background: #110905;
+      border-radius: 50%;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+      border: 2px solid rgba(217, 119, 6, 0.3);
+    }
+
+    /* The Transparent Glass Cup */
+    #drink-glass {
+      position: relative;
+      width: calc(17 * var(--u));
+      height: calc(26 * var(--u));
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.12) 100%);
+      border: 2.5px solid rgba(255,255,255,0.45);
+      border-radius: calc(0.8 * var(--u)) calc(0.8 * var(--u)) calc(2.4 * var(--u)) calc(2.4 * var(--u));
+      backdrop-filter: blur(2px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 0 20px rgba(255,255,255,0.15);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    #drink-glass.drag-hover {
+      box-shadow: 0 0 30px 10px var(--amber), inset 0 0 20px rgba(255,255,255,0.3);
+      transform: scale(1.02);
+    }
+
+    /* Liquid Layers Inside Cup */
+    #liquid-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column-reverse;
+      overflow: hidden;
+    }
+
+    .liquid-layer {
+      width: 100%;
+      transition: height 0.6s cubic-bezier(0.25, 1, 0.5, 1), background 0.4s ease;
+      position: relative;
+    }
+
+    /* Ice Cubes Layer */
+    #ice-cubes-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .ice-cube {
+      position: absolute;
+      width: calc(3.6 * var(--u));
+      height: calc(3.6 * var(--u));
+      background: linear-gradient(135deg, rgba(255,255,255,0.7) 0%, rgba(220,240,255,0.35) 60%, rgba(255,255,255,0.5) 100%);
+      border: 1.5px solid rgba(255,255,255,0.8);
+      border-radius: calc(0.6 * var(--u));
+      box-shadow: 0 4px 10px rgba(0,0,0,0.25), inset 0 0 8px rgba(255,255,255,0.6);
+      transform: rotate(var(--rot));
+      animation: iceDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes iceDrop {
+      0% { transform: translateY(-80px) rotate(0deg) scale(1.2); opacity: 0; }
+      70% { transform: translateY(0) rotate(var(--rot)) scale(1.08); opacity: 1; }
+      100% { transform: translateY(0) rotate(var(--rot)) scale(1); opacity: 1; }
+    }
+
+    /* Whipped Cream Top */
+    #whipped-cream-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(6.5 * var(--u));
+      background: radial-gradient(circle at 50% 120%, #fff 40%, #fef4e8 85%);
+      border-radius: 999px 999px 10px 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.4s, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 30;
+    }
+
+    #whipped-cream-top.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Drizzle & Sauce Canvas over Drink */
+    #drizzle-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 35;
+    }
+
+    /* Dusting Garnish Particle Layer (Cinnamon / Cocoa) */
+    #dusting-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 40;
+    }
+
+    .dust-particle {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: #733c16;
+      animation: dustFall 0.5s ease forwards;
+    }
+
+    @keyframes dustFall {
+      0% { transform: translateY(-40px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 0.9; }
+    }
+
+    /* Right Side: Saucer with Pastry (Side) */
+    #saucer-station {
+      position: absolute;
+      left: calc(68 * var(--u));
+      top: calc(23 * var(--u));
+      width: calc(14 * var(--u));
+      height: calc(18 * var(--u));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ceramic-saucer {
+      width: calc(13 * var(--u));
+      height: calc(13 * var(--u));
+      background: #fbf9f5;
+      border-radius: 50%;
+      border: 3px solid #e0d8cb;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: box-shadow 0.2s;
+    }
+
+    .ceramic-saucer.drag-hover {
+      box-shadow: 0 0 25px 8px var(--amber);
+    }
+
+    .saucer-card-hint {
+      font-family: 'Caveat Brush', cursive;
+      color: var(--amber-d);
+      font-size: calc(1.3 * var(--u));
+      text-align: center;
+      line-height: 1.2;
+    }
+
+    .placed-pastry {
+      font-size: calc(6 * var(--u));
+      filter: drop-shadow(0 8px 10px rgba(0,0,0,0.35));
+      animation: pastryDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes pastryDrop {
+      0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+      70% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Right Edge: Pastry Shelf */
+    .pastry-shelf-item {
+      position: absolute;
+      left: calc(84 * var(--u));
+      width: calc(11 * var(--u));
+      height: calc(11 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+    }
+
+    .pastry-shelf-item:hover {
+      transform: translateY(-5px) scale(1.05);
+    }
+
+    .pastry-shelf-item.dimmed {
+      opacity: 0.3;
+    }
+
+    /* Bottom Bar */
+    #bottom-bar {
+      position: absolute;
+      top: calc(51.2 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--coffee-l);
+      border: 2px solid var(--amber);
+      padding: calc(0.5 * var(--u)) calc(1.6 * var(--u));
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: calc(1.5 * var(--u));
+      box-shadow: 0 calc(0.6 * var(--u)) calc(2 * var(--u)) rgba(0,0,0,0.5);
+      z-index: 60;
+    }
+
+    .steps-list {
+      display: flex;
+      align-items: center;
+      gap: calc(1 * var(--u));
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      font-size: calc(0.85 * var(--u));
+      font-weight: 600;
+      color: var(--coffee-d);
+      padding: calc(0.25 * var(--u)) calc(0.6 * var(--u));
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+
+    .step-item.active {
+      background: var(--amber-l);
+    }
+
+    .step-num {
+      width: calc(1.2 * var(--u));
+      height: calc(1.2 * var(--u));
+      border-radius: 50%;
+      border: 1.5px solid var(--coffee-d);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(0.75 * var(--u));
+      font-weight: 700;
+    }
+
+    .step-item.done .step-num {
+      background: var(--amber);
+      color: #fff;
+      border-color: var(--amber);
+    }
+
+    .bar-total-wrap {
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: calc(1.2 * var(--u));
+      color: var(--coffee-d);
+      padding-left: calc(0.6 * var(--u));
+      border-left: 2px dashed #bba99a;
+    }
+
+    .brew-finish-btn {
+      background: var(--amber);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.15 * var(--u));
+      padding: calc(0.4 * var(--u)) calc(1.3 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      opacity: 0.45;
+      pointer-events: none;
+      box-shadow: 0 2px 0 var(--amber-d);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .brew-finish-btn.enabled {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .brew-finish-btn.enabled:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 0 var(--amber-d);
+    }
+
+    .undo-btn {
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      color: var(--coffee-d);
+      text-decoration: underline;
+      cursor: none;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    /* Toast */
+    #toast {
+      position: absolute;
+      top: calc(47 * var(--u));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--amber);
+      color: #fff;
+      font-size: calc(0.95 * var(--u));
+      font-weight: 700;
+      padding: calc(0.4 * var(--u)) calc(1.4 * var(--u));
+      border-radius: 999px;
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+      z-index: 70;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* RECEIPT */
+    #receipt-wrap {
+      position: absolute;
+      left: calc(3.5 * var(--u));
+      top: calc(9.5 * var(--u));
+      width: calc(23 * var(--u));
+      background: var(--coffee-l);
+      border-radius: calc(0.8 * var(--u)) calc(0.8 * var(--u)) 0 0;
+      padding: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(2.4 * var(--u)) calc(1.4 * var(--u));
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      z-index: 80;
+      transform: translateX(-140%) rotate(-1.2deg);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      mask-image: radial-gradient(circle at 10px bottom, transparent 8px, black 8.5px);
+      mask-size: 20px 100%;
+      mask-repeat: repeat-x;
+      -webkit-mask-image: radial-gradient(circle at 10px bottom, transparent 8px, black 8.5px);
+      -webkit-mask-size: 20px 100%;
+      -webkit-mask-repeat: repeat-x;
+    }
+
+    #receipt-wrap.active {
+      transform: translateX(0) rotate(-1.2deg);
+    }
+
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px dashed #bba99a;
+      padding-bottom: calc(0.8 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+    }
+
+    .receipt-brand {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(2 * var(--u));
+      color: var(--coffee);
+      margin: 0;
+    }
+
+    .receipt-tagline {
+      font-family: 'Caveat Brush', cursive;
+      font-size: calc(1.1 * var(--u));
+      color: var(--amber-d);
+      margin: calc(0.2 * var(--u)) 0 0 0;
+    }
+
+    .receipt-lines {
+      font-family: 'Courier Prime', monospace;
+      font-size: calc(0.82 * var(--u));
+      line-height: 1.6;
+      color: var(--coffee-d);
+      min-height: calc(8 * var(--u));
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .receipt-row.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .receipt-divider {
+      border-top: 2px dashed #bba99a;
+      margin: calc(0.6 * var(--u)) 0;
+    }
+
+    .receipt-mode-radios {
+      display: flex;
+      gap: calc(0.8 * var(--u));
+      font-size: calc(0.8 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+      font-weight: 600;
+    }
+
+    .receipt-mode-radios label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: none;
+    }
+
+    .receipt-actions {
+      display: flex;
+      flex-direction: column;
+      gap: calc(0.5 * var(--u));
+      margin-top: calc(0.8 * var(--u));
+    }
+
+    .btn-checkout {
+      background: var(--amber);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.15 * var(--u));
+      padding: calc(0.5 * var(--u)) calc(1.2 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      box-shadow: 0 3px 0 var(--amber-d);
+      transition: transform 0.1s;
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-back {
+      background: none;
+      border: none;
+      color: var(--coffee);
+      font-size: calc(0.75 * var(--u));
+      font-weight: 700;
+      cursor: none;
+      text-decoration: underline;
+    }
+
+    /* CHECKOUT MODAL */
+    #modal-checkout {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 18, 11, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-checkout.show {
+      display: flex;
+    }
+
+    .checkout-card {
+      width: calc(34 * var(--u));
+      background: var(--coffee-l);
+      border: 3px solid var(--amber);
+      border-radius: calc(1.8 * var(--u));
+      padding: calc(2 * var(--u));
+      box-shadow: 0 calc(1.2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.5);
+      transform: rotate(-1deg);
+      animation: modalSpring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalSpring {
+      0% { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+      100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+    }
+
+    .checkout-title {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(2.4 * var(--u));
+      color: var(--coffee);
+      line-height: 1.1;
+      margin: 0 0 calc(1 * var(--u)) 0;
+    }
+
+    .checkout-field {
+      margin-bottom: calc(0.9 * var(--u));
+    }
+
+    .checkout-field label {
+      display: block;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      color: var(--coffee-d);
+      margin-bottom: calc(0.3 * var(--u));
+    }
+
+    .checkout-field input, .checkout-field select {
+      width: 100%;
+      background: #fff;
+      border: 2px solid var(--coffee);
+      border-radius: calc(0.6 * var(--u));
+      padding: calc(0.5 * var(--u)) calc(0.8 * var(--u));
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.9 * var(--u));
+      color: var(--coffee-d);
+      outline: none;
+      cursor: none;
+    }
+
+    .checkout-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: calc(1 * var(--u)) 0;
+      font-family: 'Courier Prime', monospace;
+      font-size: calc(1.3 * var(--u));
+      font-weight: 700;
+      color: var(--coffee-d);
+    }
+
+    .btn-place-order {
+      width: 100%;
+      background: var(--amber);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.4 * var(--u));
+      padding: calc(0.7 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      box-shadow: 0 calc(0.3 * var(--u)) 0 var(--amber-d);
+      transition: transform 0.1s;
+    }
+
+    .btn-place-order:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Order Success Box */
+    .order-success-card {
+      text-align: center;
+      padding: calc(1 * var(--u)) 0;
+    }
+
+    .success-tick {
+      width: calc(5 * var(--u));
+      height: calc(5 * var(--u));
+      border-radius: 50%;
+      background: var(--amber);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(2.8 * var(--u));
+      margin-bottom: calc(1 * var(--u));
+      box-shadow: 0 6px 16px rgba(217, 119, 6, 0.4);
+    }
+
+    /* Held item under cursor */
+    #held {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      display: none;
+      transform: translate(-50%, -50%);
+    }
+
+    #held .held-inner {
+      filter: drop-shadow(0 20px 24px rgba(0,0,0,0.6));
+    }
+
+    /* Glove Cursor (#glove) */
+    #glove {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 58px;
+      height: 62px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-18px, -14px);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Counter Background -->
+  <div id="counter"></div>
+
+  <!-- 16:9 Contained Scene -->
+  <div id="scene">
+
+    <!-- Top Nav Band -->
+    <header id="band">
+      <nav class="nav-links">
+        <a href="#specialty" class="nav-link active-link">Specialty Drinks</a>
+        <a href="#iced" class="nav-link">Iced Coffee</a>
+        <a href="#matcha" class="nav-link">Matcha & Tea</a>
+        <a href="#bakery" class="nav-link">Bakery</a>
+      </nav>
+
+      <a href="/poke-pal.html" class="switch-mode-btn">
+        <span>🥗 Switch to Poke & Food Builder</span>
+      </a>
+    </header>
+
+    <!-- Logo & Subtitle -->
+    <div id="logo-wrap">
+      <div class="brand-title">
+        <span class="brand-barista">BARISTA</span>
+        <span class="brand-pal">PAL</span>
+      </div>
+      <div class="brand-sub">Specialty Coffee.<br>Crafted By You.</div>
+    </div>
+
+    <!-- Stickers -->
+    <div class="sticker sticker-specialty">Single Origin.</div>
+    <div class="sticker sticker-yourway">Brew it your way!</div>
+    <div class="sticker sticker-roasted">Freshly Roasted.</div>
+
+    <!-- INTRO SCREEN -->
+    <div id="intro-screen">
+      <div class="intro-copy">
+        <h1 class="intro-headline">Good vibes start with great coffee.</h1>
+        <p class="intro-desc">Pick your ice, pour double espresso, swirl plant milk, squeeze artisan syrups and top with whipped cream.</p>
+      </div>
+
+      <div id="intro-cup-btn" class="intro-cup-wrap">
+        <div class="intro-cup-graphic">
+          <div class="intro-cup-lid"></div>
+          <div class="intro-cup-sleeve">
+            <span style="font-family:'Lilita One';font-size:calc(1.8*var(--u));">BARISTA PAL</span>
+            <span style="font-family:'Caveat Brush';font-size:calc(1.1*var(--u));">Specialty Roast</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="open-builder-btn" class="intro-brew-btn" type="button">
+        Brew something fresh ↗
+      </button>
+    </div>
+
+    <!-- BUILDER CONTAINER -->
+    <div id="builder">
+      <!-- Left: Coffee Bases & Pitchers -->
+      <div id="bases-container"></div>
+
+      <!-- Top: Artisan Syrups & Bottles -->
+      <div id="syrups-container"></div>
+
+      <!-- Centerpiece: Glass Cup & Coaster -->
+      <div id="barista-station">
+        <div class="barista-mat"></div>
+
+        <!-- Glass Cup -->
+        <div id="drink-glass">
+          <!-- Liquid Layers -->
+          <div id="liquid-container">
+            <div id="layer-espresso" class="liquid-layer" style="height:0%;"></div>
+            <div id="layer-milk" class="liquid-layer" style="height:0%;"></div>
+          </div>
+
+          <!-- Ice Cubes Layer -->
+          <div id="ice-cubes-layer"></div>
+
+          <!-- Whipped Cream Fluffy Top -->
+          <div id="whipped-cream-top"></div>
+
+          <!-- Drizzle Canvas Overlay -->
+          <canvas id="drizzle-canvas"></canvas>
+
+          <!-- Cinnamon/Cocoa Dusting Particles -->
+          <div id="dusting-container"></div>
+        </div>
+      </div>
+
+      <!-- Right: Saucer for Dropped Pastry Side -->
+      <div id="saucer-station">
+        <div id="ceramic-saucer" class="ceramic-saucer">
+          <div id="saucer-hint" class="saucer-card-hint">
+            Drop pastry<br>here 🥐
+          </div>
+          <div id="placed-pastry-layer"></div>
+        </div>
+      </div>
+
+      <!-- Right Edge: Pastry Shelf -->
+      <div id="pastries-container"></div>
+
+      <!-- Bottom Step Bar -->
+      <div id="bottom-bar">
+        <div class="steps-list">
+          <div id="step-1" class="step-item active">
+            <span class="step-num">1</span>
+            <span>Ice & Size</span>
+          </div>
+          <div id="step-2" class="step-item">
+            <span class="step-num">2</span>
+            <span>Espresso Base</span>
+          </div>
+          <div id="step-3" class="step-item">
+            <span class="step-num">3</span>
+            <span>Milk Choice</span>
+          </div>
+          <div id="step-4" class="step-item">
+            <span class="step-num">4</span>
+            <span>Syrup & Cream</span>
+          </div>
+        </div>
+
+        <div class="bar-total-wrap">
+          $<span id="live-total">0.00</span>
+        </div>
+
+        <button id="brew-finish-btn" class="brew-finish-btn" type="button">
+          Brew it ↗
+        </button>
+
+        <button id="undo-btn" class="undo-btn" type="button">
+          ↺ Undo
+        </button>
+      </div>
+
+      <!-- Toast Alert -->
+      <div id="toast">Start by dropping some ice cubes!</div>
+
+      <!-- Printed Rolling Receipt -->
+      <div id="receipt-wrap">
+        <div class="receipt-header">
+          <h2 class="receipt-brand">BARISTA PAL</h2>
+          <div class="receipt-tagline">ARTISAN COFFEE ROASTERS</div>
+        </div>
+
+        <div id="receipt-items" class="receipt-lines"></div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-mode-radios">
+          <label>
+            <input type="radio" name="order-mode" value="dine_in" checked>
+            <span>Dine-in Bar</span>
+          </label>
+          <label>
+            <input type="radio" name="order-mode" value="takeaway">
+            <span>To-Go / Delivery (+$2.50)</span>
+          </label>
+        </div>
+
+        <div class="receipt-row visible" style="font-weight:700;font-size:calc(1*var(--u));margin-bottom:calc(0.6*var(--u));">
+          <span>TOTAL:</span>
+          <span>$<span id="receipt-final-total">0.00</span></span>
+        </div>
+
+        <div class="receipt-actions">
+          <button id="receipt-checkout-btn" class="btn-checkout" type="button">Checkout ↗</button>
+          <button id="receipt-back-btn" class="btn-back" type="button">← Back to craft</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="modal-checkout">
+      <div class="checkout-card">
+        <div id="checkout-form-content">
+          <h2 class="checkout-title">Freshly crafted.<br>Ready in 3 mins.</h2>
+
+          <div class="checkout-field">
+            <label>Customer Name</label>
+            <input type="text" id="cust-name" value="Emma Watson" required>
+          </div>
+
+          <div class="checkout-field">
+            <label>Table / Phone</label>
+            <input type="text" id="cust-phone" value="Table 4 (Outdoor Garden)" required>
+          </div>
+
+          <div class="checkout-field">
+            <label id="loc-select-label">Service Mode</label>
+            <select id="cust-location">
+              <option value="bar1">Served at Table 4</option>
+              <option value="bar2">Pick up at Barista Counter</option>
+            </select>
+          </div>
+
+          <div class="checkout-total-row">
+            <span>Total:</span>
+            <span>$<span id="modal-final-total">0.00</span></span>
+          </div>
+
+          <button id="place-order-btn" class="btn-place-order" type="button">
+            Send order to Barista ↗
+          </button>
+        </div>
+
+        <div id="checkout-success-content" class="order-success-card" style="display:none;">
+          <div class="success-tick">☕</div>
+          <h2 class="checkout-title" style="margin-bottom:calc(0.5*var(--u));">Order #BP-8842</h2>
+          <p style="font-size:calc(1*var(--u));margin-bottom:calc(1.5*var(--u));font-weight:500;">
+            The barista is grinding and pulling your espresso now!
+          </p>
+          <button id="reset-builder-btn" class="btn-place-order" type="button">
+            Craft another drink
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Held Item Under Glove -->
+  <div id="held">
+    <div id="held-inner" class="held-inner"></div>
+  </div>
+
+  <!-- Rubber Barista Glove Cursor SVG -->
+  <svg id="glove" viewBox="0 0 58 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <g id="glove-shape">
+      <!-- Open Hand -->
+      <path id="glove-path-open" d="M14 26 C14 20, 18 10, 24 10 C27 10, 28 14, 28 20 L28 21 C29 15, 33 8, 38 9 C41 10, 42 14, 41 21 L41 22 C43 17, 47 13, 51 15 C54 17, 54 22, 51 28 L49 32 C54 32, 57 35, 56 39 C55 45, 48 56, 38 58 L20 58 C14 55, 10 46, 10 39 L10 30 C10 26, 12 25, 14 26 Z" fill="#d97706" stroke="#8d4a04" stroke-width="2.2" stroke-linejoin="round" />
+      <!-- Point Hand -->
+      <path id="glove-path-point" d="M16 26 C16 16, 19 4, 24 4 C27 4, 29 8, 28 18 L28 25 C30 23, 33 22, 36 24 C38 26, 38 30, 36 33 L35 35 C38 35, 40 37, 40 40 C40 44, 37 46, 34 47 L34 48 C37 49, 39 51, 38 54 C36 58, 28 60, 20 59 L14 57 C10 52, 10 44, 10 38 L10 30 C10 26, 13 25, 16 26 Z" fill="#d97706" stroke="#8d4a04" stroke-width="2.2" stroke-linejoin="round" style="display:none;" />
+      <!-- Grab Hand -->
+      <path id="glove-path-grab" d="M16 32 C16 26, 20 22, 26 22 C31 22, 34 25, 34 29 C36 26, 41 25, 45 28 C48 30, 48 35, 46 39 C49 39, 52 42, 51 46 C50 52, 44 58, 35 59 L20 59 C13 56, 11 48, 11 40 L11 34 C11 31, 13 31, 16 32 Z" fill="#d97706" stroke="#8d4a04" stroke-width="2.2" stroke-linejoin="round" style="display:none;" />
+    </g>
+    <path d="M18 53 C24 55, 32 55, 38 53" stroke="#8d4a04" stroke-width="1.8" stroke-linecap="round" />
+  </svg>
+
+  <script>
+    /* =========================================================
+       1. SYNTHESIZED BARISTA AUDIO ENGINE (Web Audio API)
+       ========================================================= */
+    let audioCtx = null;
+    function getAudioCtx() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioCtx;
+    }
+
+    function playSound(type) {
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (type === 'ice') {
+          // Crystal clink
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(1400 + Math.random() * 500, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'pour') {
+          // Liquid pour sound
+          const bufferSize = ctx.sampleRate * 0.4;
+          const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+          }
+          const noise = ctx.createBufferSource();
+          noise.buffer = buffer;
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(600, now);
+          filter.frequency.linearRampToValueAtTime(1200, now + 0.3);
+          const gain = ctx.createGain();
+          gain.gain.setValueAtTime(0.35, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+          noise.connect(filter);
+          filter.connect(gain);
+          gain.connect(ctx.destination);
+          noise.start(now);
+        } else if (type === 'pump') {
+          // Syrup squish pump
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(450, now);
+          osc.frequency.exponentialRampToValueAtTime(150, now + 0.18);
+          gain.gain.setValueAtTime(0.4, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        } else if (type === 'bell') {
+          // Warm café service bell
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, now);
+          gain.gain.setValueAtTime(0.5, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.8);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.8);
+        }
+      } catch (err) {}
+    }
+
+    /* =========================================================
+       2. COFFEE & BEVERAGE DATA ITEMS
+       ========================================================= */
+    const BASES = [
+      { id: 'ice', name: 'Ice Cubes', price: 0.00, icon: '🧊', isIce: true, col: 0, row: 0 },
+      { id: 'espresso', name: 'Double Espresso', price: 3.50, icon: '☕', color: '#2e170e', col: 1, row: 0 },
+      { id: 'coldbrew', name: 'Cold Brew Shot', price: 4.00, icon: '🥃', color: '#1a0b06', col: 0, row: 1 },
+      { id: 'matcha', name: 'Ceremonial Matcha', price: 4.50, icon: '🍵', color: '#5a7d36', col: 1, row: 1 },
+      { id: 'whole_milk', name: 'Whole Milk', price: 0.00, icon: '🥛', color: '#fff9f0', isMilk: true, col: 0, row: 2 },
+      { id: 'oat_milk', name: 'Oat Milk (Oatly)', price: 1.00, icon: '🌾', color: '#f3e8d2', isMilk: true, col: 1, row: 2 },
+      { id: 'almond_milk', name: 'Almond Milk', price: 1.00, icon: '🌰', color: '#e8dcbe', isMilk: true, col: 0, row: 3 },
+      { id: 'whipped_cream', name: 'Whipped Cream', price: 0.75, icon: '🍦', isCream: true, col: 1, row: 3 }
+    ];
+
+    const SYRUPS = [
+      { id: 'caramel', name: 'Salted Caramel', price: 0.75, color: '#c8822a', x: 29 },
+      { id: 'vanilla', name: 'French Vanilla', price: 0.75, color: '#e8d5a8', x: 36 },
+      { id: 'hazelnut', name: 'Roasted Hazelnut', price: 0.75, color: '#8b5329', x: 43 },
+      { id: 'mocha', name: 'Dark Mocha', price: 0.85, color: '#4a2a18', x: 50 },
+      { id: 'pistachio', name: 'Pistachio Cream', price: 1.00, color: '#96c276', x: 57 }
+    ];
+
+    const PASTRIES = [
+      { id: 'croissant', name: 'Almond Croissant', price: 4.50, icon: '🥐', top: 7 },
+      { id: 'cookie', name: 'Choco Chip Cookie', price: 3.50, icon: '🍪', top: 20 },
+      { id: 'cinnamon', name: 'Cinnamon Roll', price: 4.75, icon: '🥮', top: 33 },
+      { id: 'donut', name: 'Pistachio Donut', price: 4.00, icon: '🍩', top: 46 }
+    ];
+
+    /* =========================================================
+       3. GLOVE CURSOR & TRACKING
+       ========================================================= */
+    const glove = document.getElementById('glove');
+    const pathOpen = document.getElementById('glove-path-open');
+    const pathPoint = document.getElementById('glove-path-point');
+    const pathGrab = document.getElementById('glove-path-grab');
+    const held = document.getElementById('held');
+    const heldInner = document.getElementById('held-inner');
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let gloveState = 'open';
+
+    function setGloveState(state) {
+      gloveState = state;
+      pathOpen.style.display = state === 'open' ? 'block' : 'none';
+      pathPoint.style.display = state === 'point' ? 'block' : 'none';
+      pathGrab.style.display = state === 'grab' ? 'block' : 'none';
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      glove.style.transform = `translate(${mouseX - 18}px, ${mouseY - 14}px)`;
+
+      if (heldItem) {
+        held.style.display = 'block';
+        held.style.left = `${mouseX}px`;
+        held.style.top = `${mouseY}px`;
+      } else {
+        held.style.display = 'none';
+        const target = e.target.closest('button, a, .barista-item, .syrup-bottle, .pastry-shelf-item, input, select, #intro-cup-btn');
+        setGloveState(target ? 'point' : 'open');
+      }
+    });
+
+    /* =========================================================
+       4. BUILDER STATE & UNDO
+       ========================================================= */
+    let state = {
+      iceCount: 0,
+      base: null, // espresso / coldbrew / matcha
+      milk: null, // whole / oat / almond
+      hasCream: false,
+      syrups: [], // [{ id, name, color, points }]
+      pastry: null, // { id, name, price, icon }
+      isReceiptOpen: false,
+      orderMode: 'dine_in'
+    };
+
+    let undoStack = [];
+
+    function saveUndo() {
+      undoStack.push(JSON.parse(JSON.stringify(state)));
+      if (undoStack.length > 20) undoStack.shift();
+    }
+
+    function doUndo() {
+      if (undoStack.length === 0) {
+        showToast("Nothing to undo.");
+        return;
+      }
+      state = undoStack.pop();
+      renderAllFromState();
+      showToast("Undone.");
+    }
+
+    document.getElementById('undo-btn').addEventListener('click', doUndo);
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        doUndo();
+      }
+    });
+
+    /* Toast Helper */
+    const toast = document.getElementById('toast');
+    let toastTimeout = null;
+    function showToast(text) {
+      toast.innerText = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1600);
+    }
+
+    /* =========================================================
+       5. BUILDER DOM SETUP
+       ========================================================= */
+    const basesContainer = document.getElementById('bases-container');
+    const syrupsContainer = document.getElementById('syrups-container');
+    const pastriesContainer = document.getElementById('pastries-container');
+    const drinkGlass = document.getElementById('drink-glass');
+    const ceramicSaucer = document.getElementById('ceramic-saucer');
+    const drizzleCanvas = document.getElementById('drizzle-canvas');
+    const drizzleCtx = drizzleCanvas.getContext('2d');
+
+    function initBuilderUI() {
+      // 8 Coffee Bases & Milks
+      const colX = [2.4, 12.4];
+      const rowY = [11.8, 21.4, 31.0, 40.6];
+      BASES.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'barista-item';
+        el.id = `base-${item.id}`;
+        el.style.left = `calc(${colX[item.col]} * var(--u))`;
+        el.style.top = `calc(${rowY[item.row]} * var(--u))`;
+
+        el.innerHTML = `
+          <div class="pitcher-graphic">
+            <span class="pitcher-icon">${item.icon}</span>
+          </div>
+          <div class="barista-tag" id="tag-${item.id}">
+            ${item.name} ${item.price > 0 ? '+$' + item.price.toFixed(2) : '$0.00'}
+          </div>
+        `;
+
+        el.addEventListener('mousedown', (e) => startDragItem('base', item, e));
+        basesContainer.appendChild(el);
+      });
+
+      // 5 Artisan Syrup Bottles
+      SYRUPS.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'syrup-bottle';
+        el.id = `syrup-${item.id}`;
+        el.style.left = `calc(${item.x} * var(--u))`;
+
+        el.innerHTML = `
+          <div class="syrup-graphic">
+            <div class="syrup-pump"></div>
+            <div class="syrup-liquid-fill" style="background:${item.color};"></div>
+          </div>
+          <div class="syrup-label" id="syrup-label-${item.id}">
+            ${item.name} +$${item.price.toFixed(2)}
+          </div>
+        `;
+
+        el.addEventListener('mousedown', (e) => startDragItem('syrup', item, e));
+        syrupsContainer.appendChild(el);
+      });
+
+      // 4 Pastries
+      PASTRIES.forEach((item) => {
+        const el = document.createElement('div');
+        el.className = 'pastry-shelf-item';
+        el.id = `pastry-${item.id}`;
+        el.style.top = `calc(${item.top} * var(--u))`;
+
+        el.innerHTML = `
+          <div class="pitcher-graphic" style="background:#1e1008;">
+            <span style="font-size:calc(4.2*var(--u));">${item.icon}</span>
+          </div>
+          <div class="barista-tag" id="pastry-tag-${item.id}">
+            ${item.name} $${item.price.toFixed(2)}
+          </div>
+        `;
+
+        el.addEventListener('mousedown', (e) => startDragItem('pastry', item, e));
+        pastriesContainer.appendChild(el);
+      });
+
+      // Canvas Size
+      drizzleCanvas.width = drinkGlass.clientWidth;
+      drizzleCanvas.height = drinkGlass.clientHeight;
+    }
+
+    /* Open Sequence */
+    const openBtn = document.getElementById('open-builder-btn');
+    const introCupBtn = document.getElementById('intro-cup-btn');
+    function startBrewing() {
+      document.body.classList.add('open');
+      playSound('pour');
+      showToast("Drop ice cubes into the glass!");
+    }
+    openBtn.addEventListener('click', startBrewing);
+    introCupBtn.addEventListener('click', startBrewing);
+
+    /* =========================================================
+       6. DRAG & DROP COFFEE CRAFTING
+       ========================================================= */
+    let heldItem = null;
+
+    function startDragItem(type, data, e) {
+      if (e) e.preventDefault();
+      heldItem = { type, data };
+      setGloveState('grab');
+
+      held.style.display = 'block';
+      held.style.left = `${mouseX}px`;
+      held.style.top = `${mouseY}px`;
+
+      if (type === 'base') {
+        heldInner.innerHTML = `<span style="font-size:calc(5*var(--u));">${data.icon}</span>`;
+      } else if (type === 'syrup') {
+        heldInner.innerHTML = `
+          <div style="width:calc(5*var(--u));height:calc(14*var(--u));background:${data.color};border:2px solid #fff;border-radius:10px;transform:rotate(-130deg);box-shadow:0 8px 16px rgba(0,0,0,0.5);"></div>
+        `;
+        document.getElementById(`syrup-${data.id}`).classList.add('lifted');
+      } else if (type === 'pastry') {
+        heldInner.innerHTML = `<span style="font-size:calc(6*var(--u));">${data.icon}</span>`;
+      }
+    }
+
+    function dropHeldBack() {
+      if (!heldItem) return;
+      if (heldItem.type === 'syrup') {
+        document.getElementById(`syrup-${heldItem.data.id}`).classList.remove('lifted');
+      }
+      heldItem = null;
+      held.style.display = 'none';
+      setGloveState('open');
+      drinkGlass.classList.remove('drag-hover');
+      ceramicSaucer.classList.remove('drag-hover');
+    }
+
+    // Hover detection
+    window.addEventListener('mousemove', (e) => {
+      if (!heldItem) return;
+      const glassRect = drinkGlass.getBoundingClientRect();
+      const isOverGlass = (
+        e.clientX >= glassRect.left && e.clientX <= glassRect.right &&
+        e.clientY >= glassRect.top && e.clientY <= glassRect.bottom
+      );
+      drinkGlass.classList.toggle('drag-hover', isOverGlass);
+
+      const saucerRect = ceramicSaucer.getBoundingClientRect();
+      const isOverSaucer = (
+        e.clientX >= saucerRect.left && e.clientX <= saucerRect.right &&
+        e.clientY >= saucerRect.top && e.clientY <= saucerRect.bottom
+      );
+      ceramicSaucer.classList.toggle('drag-hover', isOverSaucer);
+    });
+
+    // Drop handler
+    window.addEventListener('mouseup', (e) => {
+      if (!heldItem) return;
+
+      const glassRect = drinkGlass.getBoundingClientRect();
+      const isOverGlass = (
+        e.clientX >= glassRect.left && e.clientX <= glassRect.right &&
+        e.clientY >= glassRect.top && e.clientY <= glassRect.bottom
+      );
+
+      const saucerRect = ceramicSaucer.getBoundingClientRect();
+      const isOverSaucer = (
+        e.clientX >= saucerRect.left && e.clientX <= saucerRect.right &&
+        e.clientY >= saucerRect.top && e.clientY <= saucerRect.bottom
+      );
+
+      if (heldItem.type === 'base') {
+        if (heldItem.data.isIce) {
+          if (isOverGlass) {
+            saveUndo();
+            addIceCube();
+            showToast("Ice cube dropped!");
+            updateTotals();
+          } else {
+            showToast("Drop ice inside the glass!");
+          }
+        } else if (heldItem.data.isMilk) {
+          if (!state.base) {
+            showToast("Pour coffee base first before milk!");
+          } else if (isOverGlass) {
+            saveUndo();
+            state.milk = heldItem.data;
+            document.getElementById('layer-milk').style.height = '45%';
+            document.getElementById('layer-milk').style.background = heldItem.data.color;
+            playSound('pour');
+            showToast(`${heldItem.data.name} swirled in.`);
+            updateTotals();
+          }
+        } else if (heldItem.data.isCream) {
+          if (!state.base) {
+            showToast("Pour your coffee base first!");
+          } else if (isOverGlass) {
+            saveUndo();
+            state.hasCream = true;
+            document.getElementById('whipped-cream-top').classList.add('active');
+            playSound('pump');
+            showToast("Whipped cream topped!");
+            updateTotals();
+          }
+        } else {
+          // Espresso / Cold Brew / Matcha
+          if (isOverGlass) {
+            saveUndo();
+            state.base = heldItem.data;
+            document.getElementById('layer-espresso').style.height = '40%';
+            document.getElementById('layer-espresso').style.background = heldItem.data.color;
+            playSound('pour');
+            showToast(`${heldItem.data.name} pulled & poured.`);
+            updateTotals();
+          } else {
+            showToast("Pour coffee into the glass!");
+          }
+        }
+      } else if (heldItem.type === 'pastry') {
+        if (isOverSaucer) {
+          saveUndo();
+          state.pastry = heldItem.data;
+          document.getElementById('saucer-hint').style.display = 'none';
+          document.getElementById('placed-pastry-layer').innerHTML = `
+            <div class="placed-pastry">${heldItem.data.icon}</div>
+          `;
+          document.querySelectorAll('.pastry-shelf-item').forEach(p => p.classList.remove('dimmed'));
+          document.getElementById(`pastry-${heldItem.data.id}`).classList.add('dimmed');
+          playSound('ice');
+          showToast(`${heldItem.data.name} on the saucer.`);
+          updateTotals();
+        } else {
+          showToast("Drop pastry onto the saucer!");
+        }
+      }
+
+      dropHeldBack();
+    });
+
+    function addIceCube() {
+      state.iceCount++;
+      const layer = document.getElementById('ice-cubes-layer');
+      const cube = document.createElement('div');
+      cube.className = 'ice-cube';
+      cube.style.setProperty('--rot', `${Math.random() * 45 - 22}deg`);
+      cube.style.left = `${calcIcePos(state.iceCount).x}%`;
+      cube.style.bottom = `${calcIcePos(state.iceCount).y}%`;
+      layer.appendChild(cube);
+      playSound('ice');
+    }
+
+    function calcIcePos(idx) {
+      const positions = [
+        { x: 22, y: 8 },
+        { x: 55, y: 12 },
+        { x: 38, y: 28 },
+        { x: 18, y: 44 },
+        { x: 58, y: 48 },
+        { x: 38, y: 64 }
+      ];
+      return positions[(idx - 1) % positions.length];
+    }
+
+    /* =========================================================
+       7. SYRUP DRIZZLE ART (CANVAS)
+       ========================================================= */
+    let isDrizzling = false;
+    let currentDrizzle = [];
+
+    drinkGlass.addEventListener('mousedown', (e) => {
+      if (!heldItem || heldItem.type !== 'syrup') return;
+      if (!state.base) {
+        showToast("Pour coffee first before syrup!");
+        return;
+      }
+      isDrizzling = true;
+      currentDrizzle = [];
+      const rect = drinkGlass.getBoundingClientRect();
+      addDrizzlePt(e.clientX - rect.left, e.clientY - rect.top);
+      playSound('pump');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDrizzling || !heldItem || heldItem.type !== 'syrup') return;
+      const rect = drinkGlass.getBoundingClientRect();
+      addDrizzlePt(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isDrizzling) return;
+      isDrizzling = false;
+      if (currentDrizzle.length >= 4 && heldItem && heldItem.type === 'syrup') {
+        saveUndo();
+        state.syrups.push({
+          id: heldItem.data.id,
+          name: heldItem.data.name,
+          color: heldItem.data.color,
+          points: [...currentDrizzle]
+        });
+        showToast(`${heldItem.data.name} drizzled.`);
+        updateTotals();
+      }
+    });
+
+    function addDrizzlePt(x, y) {
+      currentDrizzle.push({ x, y });
+      drawDrizzle(currentDrizzle, heldItem.data.color);
+    }
+
+    function drawDrizzle(pts, color) {
+      if (pts.length < 2) return;
+      drizzleCtx.lineCap = 'round';
+      drizzleCtx.lineJoin = 'round';
+
+      // Shadow
+      drizzleCtx.beginPath();
+      drizzleCtx.moveTo(pts[0].x, pts[0].y + 2);
+      for (let i = 1; i < pts.length; i++) drizzleCtx.lineTo(pts[i].x, pts[i].y + 2);
+      drizzleCtx.strokeStyle = 'rgba(0,0,0,0.25)';
+      drizzleCtx.lineWidth = 10;
+      drizzleCtx.stroke();
+
+      // Main Drizzle
+      drizzleCtx.beginPath();
+      drizzleCtx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 1; i < pts.length; i++) drizzleCtx.lineTo(pts[i].x, pts[i].y);
+      drizzleCtx.strokeStyle = color;
+      drizzleCtx.lineWidth = 8;
+      drizzleCtx.stroke();
+
+      // Highlight
+      drizzleCtx.beginPath();
+      drizzleCtx.moveTo(pts[0].x - 1, pts[0].y - 1);
+      for (let i = 1; i < pts.length; i++) drizzleCtx.lineTo(pts[i].x - 1, pts[i].y - 1);
+      drizzleCtx.strokeStyle = 'rgba(255,255,255,0.4)';
+      drizzleCtx.lineWidth = 2.5;
+      drizzleCtx.stroke();
+    }
+
+    /* =========================================================
+       8. FINISH BREW & ROLLING RECEIPT
+       ========================================================= */
+    const finishBtn = document.getElementById('brew-finish-btn');
+    const receiptWrap = document.getElementById('receipt-wrap');
+    const receiptItems = document.getElementById('receipt-items');
+
+    finishBtn.addEventListener('click', () => {
+      if (!state.base) return;
+      saveUndo();
+
+      // Cocoa Dust Rain Animation
+      createDustingRain();
+      playSound('bell');
+      showToast("Masterpiece brewed!");
+
+      setTimeout(() => {
+        state.isReceiptOpen = true;
+        receiptWrap.classList.add('active');
+        printBaristaReceipt();
+      }, 650);
+    });
+
+    function createDustingRain() {
+      const container = document.getElementById('dusting-container');
+      container.innerHTML = '';
+      for (let i = 0; i < 70; i++) {
+        const p = document.createElement('div');
+        p.className = 'dust-particle';
+        p.style.left = `${15 + Math.random() * 70}%`;
+        p.style.top = `${5 + Math.random() * 25}%`;
+        p.style.animationDelay = `${Math.random() * 300}ms`;
+        container.appendChild(p);
+      }
+    }
+
+    function printBaristaReceipt() {
+      receiptItems.innerHTML = '';
+      const lines = [];
+
+      if (state.iceCount > 0) {
+        lines.push({ name: `Specialty Ice (${state.iceCount}x)`, price: 'INCL.' });
+      }
+      if (state.base) {
+        lines.push({ name: state.base.name, price: `$${state.base.price.toFixed(2)}` });
+      }
+      if (state.milk) {
+        lines.push({ name: state.milk.name, price: state.milk.price > 0 ? `+$${state.milk.price.toFixed(2)}` : 'INCL.' });
+      }
+      if (state.hasCream) {
+        lines.push({ name: 'Whipped Cream', price: '+$0.75' });
+      }
+      state.syrups.forEach(s => {
+        lines.push({ name: `${s.name} syrup`, price: '+$0.75' });
+      });
+      if (state.pastry) {
+        lines.push({ name: state.pastry.name, price: `$${state.pastry.price.toFixed(2)}` });
+      }
+
+      lines.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'receipt-row';
+        row.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
+        receiptItems.appendChild(row);
+
+        setTimeout(() => row.classList.add('visible'), idx * 110);
+      });
+
+      updateReceiptTotals();
+    }
+
+    function updateReceiptTotals() {
+      let sub = 0;
+      if (state.base) sub += state.base.price;
+      if (state.milk) sub += state.milk.price;
+      if (state.hasCream) sub += 0.75;
+      state.syrups.forEach(() => sub += 0.75);
+      if (state.pastry) sub += state.pastry.price;
+
+      const isTakeaway = document.querySelector('input[name="order-mode"]:checked')?.value === 'takeaway';
+      const total = sub + (isTakeaway ? 2.50 : 0.00);
+
+      document.getElementById('receipt-final-total').innerText = total.toFixed(2);
+      document.getElementById('modal-final-total').innerText = total.toFixed(2);
+    }
+
+    document.querySelectorAll('input[name="order-mode"]').forEach(radio => {
+      radio.addEventListener('change', () => updateReceiptTotals());
+    });
+
+    document.getElementById('receipt-back-btn').addEventListener('click', () => {
+      receiptWrap.classList.remove('active');
+      state.isReceiptOpen = false;
+    });
+
+    /* Checkout Modal */
+    const checkoutModal = document.getElementById('modal-checkout');
+    document.getElementById('receipt-checkout-btn').addEventListener('click', () => {
+      checkoutModal.classList.add('show');
+    });
+
+    document.getElementById('place-order-btn').addEventListener('click', () => {
+      document.getElementById('checkout-form-content').style.display = 'none';
+      document.getElementById('checkout-success-content').style.display = 'block';
+      playSound('bell');
+    });
+
+    document.getElementById('reset-builder-btn').addEventListener('click', () => {
+      checkoutModal.classList.remove('show');
+      document.getElementById('checkout-form-content').style.display = 'block';
+      document.getElementById('checkout-success-content').style.display = 'none';
+      receiptWrap.classList.remove('active');
+      resetBaristaState();
+    });
+
+    function resetBaristaState() {
+      state = {
+        iceCount: 0,
+        base: null,
+        milk: null,
+        hasCream: false,
+        syrups: [],
+        pastry: null,
+        isReceiptOpen: false,
+        orderMode: 'dine_in'
+      };
+      undoStack = [];
+      renderAllFromState();
+      showToast("Ready for a fresh cup!");
+    }
+
+    /* =========================================================
+       9. TOTALS & UI STEPS ENGINE
+       ========================================================= */
+    function updateTotals() {
+      let total = 0;
+      if (state.base) total += state.base.price;
+      if (state.milk) total += state.milk.price;
+      if (state.hasCream) total += 0.75;
+      state.syrups.forEach(() => total += 0.75);
+      if (state.pastry) total += state.pastry.price;
+
+      document.getElementById('live-total').innerText = total.toFixed(2);
+
+      // Steps indicator
+      const s1 = document.getElementById('step-1');
+      const s2 = document.getElementById('step-2');
+      const s3 = document.getElementById('step-3');
+      const s4 = document.getElementById('step-4');
+
+      [s1, s2, s3, s4].forEach(s => s.className = 'step-item');
+
+      if (state.iceCount > 0) s1.classList.add('done');
+      if (state.base) s2.classList.add('done');
+      if (state.milk) s3.classList.add('done');
+      if (state.syrups.length > 0 || state.hasCream) s4.classList.add('done');
+
+      if (state.iceCount === 0) s1.classList.add('active');
+      else if (!state.base) s2.classList.add('active');
+      else if (!state.milk) s3.classList.add('active');
+      else s4.classList.add('active');
+
+      // Brew finish button
+      if (state.base) {
+        finishBtn.classList.add('enabled');
+      } else {
+        finishBtn.classList.remove('enabled');
+      }
+    }
+
+    function renderAllFromState() {
+      // Ice
+      document.getElementById('ice-cubes-layer').innerHTML = '';
+      for (let i = 1; i <= state.iceCount; i++) {
+        const cube = document.createElement('div');
+        cube.className = 'ice-cube';
+        cube.style.setProperty('--rot', `${Math.random() * 45 - 22}deg`);
+        cube.style.left = `${calcIcePos(i).x}%`;
+        cube.style.bottom = `${calcIcePos(i).y}%`;
+        document.getElementById('ice-cubes-layer').appendChild(cube);
+      }
+
+      // Base
+      document.getElementById('layer-espresso').style.height = state.base ? '40%' : '0%';
+      if (state.base) document.getElementById('layer-espresso').style.background = state.base.color;
+
+      // Milk
+      document.getElementById('layer-milk').style.height = state.milk ? '45%' : '0%';
+      if (state.milk) document.getElementById('layer-milk').style.background = state.milk.color;
+
+      // Cream
+      document.getElementById('whipped-cream-top').classList.toggle('active', state.hasCream);
+
+      // Syrups Drizzle
+      drizzleCtx.clearRect(0, 0, drizzleCanvas.width, drizzleCanvas.height);
+      state.syrups.forEach(s => drawDrizzle(s.points, s.color));
+
+      // Pastry
+      if (state.pastry) {
+        document.getElementById('saucer-hint').style.display = 'none';
+        document.getElementById('placed-pastry-layer').innerHTML = `
+          <div class="placed-pastry">${state.pastry.icon}</div>
+        `;
+      } else {
+        document.getElementById('saucer-hint').style.display = 'block';
+        document.getElementById('placed-pastry-layer').innerHTML = '';
+        document.querySelectorAll('.pastry-shelf-item').forEach(p => p.classList.remove('dimmed'));
+      }
+
+      updateTotals();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initBuilderUI();
+    });
+  </script>
+</body>
+</html>

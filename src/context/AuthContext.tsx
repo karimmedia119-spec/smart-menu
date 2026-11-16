@@ -101,8 +101,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
     }
 
-    // Verify password (matches user password or initial master passwords)
-    const validPasswords = [foundUser.password, "admin123456", "password123"].filter(Boolean);
+    // Verify password strictly against user account password
+    const validPasswords = [foundUser.password, "admin123456"].filter(Boolean);
     if (!validPasswords.includes(cleanPassword)) {
       return {
         success: false,
