@@ -52,6 +52,7 @@ export default function AdminPage() {
     toggleProductAvailability,
     updateStockQuantity,
     addTable,
+    loadSampleMenuForTenant,
     clearTenantMenu,
   } = useApp();
 
@@ -942,6 +943,15 @@ export default function AdminPage() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => loadSampleMenuForTenant(activeTenant.id)}
+                  className="py-2.5 px-3.5 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-sm transition-colors"
+                  title="استيراد وتحديث القائمة الشاملة لجميع الأصناف والمشروبات"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>تعبئة القائمة الشاملة (24 صنفاً)</span>
+                </button>
+
                 {products.length > 0 && (
                   <button
                     onClick={() => {
@@ -953,7 +963,7 @@ export default function AdminPage() {
                     title="مسح القائمة والبدء بنظام فارغ"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                    <span>مسح القائمة للبدء من الصفر</span>
+                    <span>مسح القائمة</span>
                   </button>
                 )}
 
@@ -962,9 +972,48 @@ export default function AdminPage() {
                   className="py-2.5 px-4 rounded-2xl bg-warm-text text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:bg-stone-800 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>إضافة صنف جديد للمنيو</span>
+                  <span>إضافة صنف جديد</span>
                 </button>
               </div>
+            </div>
+
+            {/* Interactive Builder Showcase / Preview */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <a
+                href="/poke-pal.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-2xl bg-teal-900 text-white border border-teal-800 flex items-center justify-between group hover:bg-teal-950 transition-all shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-teal-800 flex items-center justify-center text-xl">
+                    🥗
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-white">منشئ أطباق البوكيه بول (Poke Pal Builder)</h4>
+                    <p className="text-[11px] text-teal-200 mt-0.5">تجربة طلب تفاعلية ثلاثية الأبعاد مع قفاز الشيف والإيصال الحراري</p>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-teal-300 group-hover:text-white shrink-0" />
+              </a>
+
+              <a
+                href="/barista-pal.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-2xl bg-[#2a1c12] text-white border border-amber-950 flex items-center justify-between group hover:bg-[#1f140c] transition-all shadow-sm"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-900/60 flex items-center justify-center text-xl">
+                    ☕
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-black text-white">منشئ المشروبات والقهوة (Barista Pal Drink Builder)</h4>
+                    <p className="text-[11px] text-stone-300 mt-0.5">فيزياء إسقاط الثلج، صب الإسبريسو والماتشا، وسكب الحليب والكريمة</p>
+                  </div>
+                </div>
+                <ExternalLink className="w-4 h-4 text-amber-300 group-hover:text-white shrink-0" />
+              </a>
             </div>
 
             {isAddingProduct && (

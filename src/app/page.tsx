@@ -183,6 +183,59 @@ export default function CustomerPage() {
           </div>
         </div>
 
+        {/* Interactive Custom Experience Cards (Poke Pal Bowl Builder & Barista Pal Coffee Builder) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <a
+            href="/poke-pal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-teal-900 to-teal-950 text-white border border-teal-800 shadow-warm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 block"
+          >
+            <div className="relative z-10 flex items-start justify-between">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-800/80 text-teal-200 text-[10px] font-black uppercase tracking-wider mb-2 border border-teal-700">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  تجربة تفاعلية حية ثلاثية الأبعاد
+                </span>
+                <h3 className="text-lg font-black text-white tracking-tight group-hover:text-amber-300 transition-colors">
+                  🥗 Poke Pal — صمّم طبق البوكيه التفاعلي
+                </h3>
+                <p className="text-xs text-teal-200/80 mt-1 max-w-sm leading-relaxed">
+                  امسك المكونات بقفاز الشيف: أرز السوشي، السالمون، الأفوكادو، الصوصات بالقطارة، ورشة البهارات مع إيصال حراري فوري!
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-teal-800/60 border border-teal-700 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-amber-500 transition-all text-white">
+                <ArrowRight className="w-4 h-4 rotate-180" />
+              </div>
+            </div>
+          </a>
+
+          <a
+            href="/barista-pal.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group relative overflow-hidden rounded-3xl p-5 bg-gradient-to-br from-[#2c1d11] to-[#1a1008] text-white border border-amber-950 shadow-warm hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 block"
+          >
+            <div className="relative z-10 flex items-start justify-between">
+              <div>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-900/60 text-amber-200 text-[10px] font-black uppercase tracking-wider mb-2 border border-amber-800">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  باريستا وكافيه محترف
+                </span>
+                <h3 className="text-lg font-black text-white tracking-tight group-hover:text-amber-400 transition-colors">
+                  ☕ Barista Pal — صمّم مشروبك المخصص
+                </h3>
+                <p className="text-xs text-stone-300 mt-1 max-w-sm leading-relaxed">
+                  اختر الكوب، أسقط الثلج بفيزياء حية، صب الإسبريسو أو الماتشا، اسكب الحليب وزيّن بالكراميل والكريمة ورشة القرفة!
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-2xl bg-amber-900/40 border border-amber-800/80 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-amber-600 transition-all text-white">
+                <ArrowRight className="w-4 h-4 rotate-180" />
+              </div>
+            </div>
+          </a>
+        </div>
+
         {/* Dietary & Highlight Tags Carousel */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none text-xs">
           <button

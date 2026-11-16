@@ -126,6 +126,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const products = productsList.filter((p) => p.tenantId === activeTenant.id);
   const tables = tablesList.filter((t) => t.tenantId === activeTenant.id);
 
+  // Load products & categories from localStorage if present, otherwise default to INITIAL
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cachedProds = localStorage.getItem("smart_menu_products_v2");
+      if (cachedProds) {
+        const parsed = JSON.parse(cachedProds);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProductsList(parsed);
+        }
+      }
+      const cachedCats = localStorage.getItem("smart_menu_categories_v2");
+      if (cachedCats) {
+        const parsed = JSON.parse(cachedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCategoriesList(parsed);
+        }
+      }
+      const cachedTables = localStorage.getItem("smart_menu_tables_v2");
+      if (cachedTables) {
+        const parsed = JSON.parse(cachedTables);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setTablesList(parsed);
+        }
+      }
+    } catch (e) {}
+  }, []);
+
+  // Save to localStorage whenever products, categories, or tables change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      localStorage.setItem("smart_menu_products_v2", JSON.stringify(productsList));
+      localStorage.setItem("smart_menu_categories_v2", JSON.stringify(categoriesList));
+      localStorage.setItem("smart_menu_tables_v2", JSON.stringify(tablesList));
+    } catch (e) {}
+  }, [productsList, categoriesList, tablesList]);
+
   // Monitor Network Online/Offline Status
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -406,83 +444,34 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const loadSampleMenuForTenant = (tenantId: string) => {
-    const sampleCats: Category[] = [
-      { id: `cat-${Date.now()}-1`, tenantId, name: "المقبلات والشوربة", sortOrder: 1 },
-      { id: `cat-${Date.now()}-2`, tenantId, name: "الأطباق الرئيسية واللحوم", sortOrder: 2 },
-      { id: `cat-${Date.now()}-3`, tenantId, name: "المشروبات المنعشة", sortOrder: 3 },
-      { id: `cat-${Date.now()}-4`, tenantId, name: "الحلويات", sortOrder: 4 },
-    ];
+    // Generate categories mapped to tenantId
+    const catMap: Record<string, string> = {};
+    const sampleCats: Category[] = INITIAL_CATEGORIES.map((c, idx) => {
+      const newId = `cat-${tenantId}-${idx + 1}`;
+      catMap[c.id] = newId;
+      return {
+        ...c,
+        id: newId,
+        tenantId,
+      };
+    });
 
-    const sampleProds: Product[] = [
-      {
-        id: `prod-${Date.now()}-1`,
-        tenantId,
-        categoryId: sampleCats[1].id,
-        name: "كبدة إسكندراني باللية والبهارات",
-        description: "كبدة طازجة متبلة بالثوم والفلفل الحار والخلطة السرية مع شرائح الفلفل والليمون الساخن.",
-        price: 185,
-        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=600",
-        isAvailable: true,
-        stockQuantity: 25,
-        isBestSeller: true,
-        isSpicy: true,
-        prepTimeMinutes: 12,
-        calories: 520,
-      },
-      {
-        id: `prod-${Date.now()}-2`,
-        tenantId,
-        categoryId: sampleCats[1].id,
-        name: "طاجن لحم بلدي بالبصل القاورما",
-        description: "قطع لحم بلدي طازجة مطهوة ببطء في الفرن الحجري داخل فخارة مغطاة بالعجين ومتبلة ببهارات خاصة.",
-        price: 295,
-        image: "https://images.unsplash.com/photo-1541832676-9b763b0239ab?w=600",
-        isAvailable: true,
-        stockQuantity: 18,
-        isBestSeller: true,
-        prepTimeMinutes: 20,
-        calories: 680,
-      },
-      {
-        id: `prod-${Date.now()}-3`,
-        tenantId,
-        categoryId: sampleCats[0].id,
-        name: "شوربة كوارع مخلية بالليمون",
-        description: "شوربة غنية ومفيدة مع قطع الكوارع المخلية وتتبيلة الثوم والليمون والخبز المحمص.",
-        price: 110,
-        image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600",
-        isAvailable: true,
-        stockQuantity: 30,
-        prepTimeMinutes: 8,
-        calories: 340,
-      },
-      {
-        id: `prod-${Date.now()}-4`,
-        tenantId,
-        categoryId: sampleCats[2].id,
-        name: "ليمون نعناع فريش مثلج",
-        description: "عصير ليمون طبيعي مع أوراق النعناع الطازجة وسيروب خفيف على أحجار الثلج المجروش.",
-        price: 45,
-        image: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600",
-        isAvailable: true,
-        stockQuantity: 50,
-        isUpsell: true,
-        prepTimeMinutes: 4,
-        calories: 120,
-      },
-    ];
+    const sampleProds: Product[] = INITIAL_PRODUCTS.map((p, idx) => ({
+      ...p,
+      id: `prod-${tenantId}-${idx + 1}`,
+      tenantId,
+      categoryId: catMap[p.categoryId] || p.categoryId,
+    }));
 
-    const sampleTables: TableInfo[] = [
-      { id: `tbl-${Date.now()}-1`, tenantId, number: "1", name: "طاولة 1", capacity: 4, status: "available" },
-      { id: `tbl-${Date.now()}-2`, tenantId, number: "2", name: "طاولة 2", capacity: 2, status: "available" },
-      { id: `tbl-${Date.now()}-3`, tenantId, number: "3", name: "طاولة 3", capacity: 4, status: "available" },
-      { id: `tbl-${Date.now()}-4`, tenantId, number: "4", name: "طاولة 4", capacity: 6, status: "available" },
-      { id: `tbl-${Date.now()}-5`, tenantId, number: "VIP", name: "صالة VIP", capacity: 12, status: "available" },
-    ];
+    const sampleTables: TableInfo[] = INITIAL_TABLES.map((t, idx) => ({
+      ...t,
+      id: `tbl-${tenantId}-${idx + 1}`,
+      tenantId,
+    }));
 
-    setCategoriesList((prev) => [...prev, ...sampleCats]);
-    setProductsList((prev) => [...prev, ...sampleProds]);
-    setTablesList((prev) => [...prev, ...sampleTables]);
+    setCategoriesList((prev) => [...prev.filter((c) => c.tenantId !== tenantId), ...sampleCats]);
+    setProductsList((prev) => [...prev.filter((p) => p.tenantId !== tenantId), ...sampleProds]);
+    setTablesList((prev) => [...prev.filter((t) => t.tenantId !== tenantId), ...sampleTables]);
     setTenants((prev) =>
       prev.map((t) => (t.id === tenantId ? { ...t, isSampleDataLoaded: true, onboardingCompleted: true } : t))
     );
