@@ -1,0 +1,2305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poke Pal — Build Your Bowl</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&family=Courier+Prime:wght@400;700&family=Fredoka:wght@400;500;600;700&family=Lilita+One&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --coral: #f2766a;
+      --coral-d: #e05d50;
+      --coral-l: #ffe2dc;
+      --teal: #0d6a6e;
+      --teal-d: #0a5155;
+      --teal-l: #d5efec;
+      --cream: #fff8f0;
+      --ink: #0f3b3e;
+      --u: calc(min(100vw, 177.78vh) / 100);
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      cursor: none;
+      background: #111;
+      font-family: 'Fredoka', sans-serif;
+      color: var(--ink);
+    }
+
+    /* Fixed Brushed-Steel Counter Background */
+    #counter {
+      position: fixed;
+      inset: -2%;
+      background-image: url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20261114_042539_bee90308-05ef-4b87-a91f-6b86c7e02f94.png&w=2400&q=86');
+      background-size: cover;
+      background-position: center;
+      box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.45);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* 16:9 Contained Scene */
+    #scene {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(100 * var(--u));
+      height: calc(56.25 * var(--u));
+      z-index: 2;
+      overflow: visible;
+    }
+
+    /* Nav Band (#band) */
+    #band {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: calc(3.1 * var(--u));
+      background-color: var(--coral);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 calc(2.4 * var(--u));
+    }
+
+    #band::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 0;
+      width: 100%;
+      height: calc(0.7 * var(--u));
+      background: radial-gradient(circle at 50% 0, var(--coral) 70%, transparent 72%);
+      background-size: calc(1.4 * var(--u)) calc(0.7 * var(--u));
+      background-repeat: repeat-x;
+      pointer-events: none;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: calc(1.8 * var(--u));
+    }
+
+    .nav-link {
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 600;
+      font-size: calc(1.05 * var(--u));
+      color: var(--teal-d);
+      text-decoration: none;
+      position: relative;
+      cursor: none;
+      transition: color 0.15s;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--teal-d);
+      transform: scaleX(0);
+      transform-origin: center;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .nav-link:hover::after {
+      transform: scaleX(1);
+    }
+
+    .how-it-works-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      background: var(--cream);
+      color: var(--teal-d);
+      font-size: calc(0.95 * var(--u));
+      font-weight: 700;
+      padding: calc(0.3 * var(--u)) calc(0.9 * var(--u));
+      border-radius: 999px;
+      cursor: none;
+      border: 1.5px solid var(--teal-d);
+      box-shadow: 0 2px 0 var(--teal-d);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .how-it-works-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 3px 0 var(--teal-d);
+    }
+
+    /* Popover */
+    #how-popover {
+      display: none;
+      position: absolute;
+      top: calc(4.2 * var(--u));
+      right: calc(2.4 * var(--u));
+      width: calc(22 * var(--u));
+      background: var(--cream);
+      border: 2px solid var(--teal);
+      border-radius: calc(1.2 * var(--u));
+      padding: calc(1.4 * var(--u));
+      box-shadow: 0 8px 24px rgba(13, 106, 110, 0.25);
+      z-index: 101;
+      animation: popIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #how-popover.show {
+      display: block;
+    }
+
+    #how-popover h4 {
+      margin: 0 0 calc(0.8 * var(--u)) 0;
+      font-family: 'Lilita One', cursive;
+      color: var(--teal);
+      font-size: calc(1.3 * var(--u));
+    }
+
+    #how-popover ol {
+      margin: 0;
+      padding-left: calc(1.2 * var(--u));
+      font-size: calc(0.95 * var(--u));
+      line-height: 1.5;
+      color: var(--ink);
+    }
+
+    #how-popover li {
+      margin-bottom: calc(0.5 * var(--u));
+    }
+
+    /* Logo at (2.2u, 4.6u) */
+    #logo-wrap {
+      position: absolute;
+      left: calc(2.2 * var(--u));
+      top: calc(4.6 * var(--u));
+      display: flex;
+      align-items: center;
+      gap: calc(1.2 * var(--u));
+      z-index: 90;
+    }
+
+    .brand-title {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(3.9 * var(--u));
+      line-height: 0.82;
+      display: flex;
+      flex-direction: column;
+      filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.25));
+    }
+
+    .brand-poke {
+      color: var(--teal);
+      -webkit-text-stroke: calc(0.16 * var(--u)) #ffffff;
+      paint-order: stroke fill;
+    }
+
+    .brand-pal {
+      color: var(--coral);
+      -webkit-text-stroke: calc(0.16 * var(--u)) #ffffff;
+      paint-order: stroke fill;
+    }
+
+    .brand-sub {
+      font-family: 'Caveat Brush', cursive;
+      color: var(--coral);
+      font-size: calc(1.8 * var(--u));
+      line-height: 1.1;
+      transform: rotate(-5deg);
+      margin-top: calc(0.6 * var(--u));
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Stickers */
+    .sticker {
+      position: absolute;
+      font-family: 'Caveat Brush', cursive;
+      pointer-events: none;
+      z-index: 85;
+      filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.15));
+    }
+
+    .sticker-together {
+      top: calc(4.6 * var(--u));
+      right: calc(3 * var(--u));
+      color: var(--teal);
+      font-size: calc(2 * var(--u));
+      transform: rotate(3deg);
+    }
+
+    .sticker-yours {
+      left: calc(2 * var(--u));
+      top: calc(51.6 * var(--u));
+      color: var(--coral);
+      font-size: calc(2.2 * var(--u));
+      transform: rotate(-3deg);
+    }
+
+    .sticker-pokepal {
+      right: calc(3 * var(--u));
+      bottom: calc(1.5 * var(--u));
+      color: var(--coral);
+      font-size: calc(2.4 * var(--u));
+      transform: rotate(-6deg);
+    }
+
+    /* INTRO SCREEN (Closed Box) */
+    #intro-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 50;
+      pointer-events: auto;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .intro-box-wrap {
+      position: absolute;
+      left: calc(32.5 * var(--u));
+      top: calc(16.4 * var(--u));
+      width: calc(38 * var(--u));
+      height: calc(30 * var(--u));
+      cursor: none;
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .intro-box-wrap:hover {
+      transform: translateY(-8px) rotate(-1deg);
+    }
+
+    .intro-copy {
+      position: absolute;
+      left: calc(7 * var(--u));
+      top: calc(17 * var(--u));
+      max-width: calc(24 * var(--u));
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .intro-headline {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(3.6 * var(--u));
+      line-height: 1.05;
+      color: var(--teal);
+      margin: 0 0 calc(0.8 * var(--u)) 0;
+      filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.8));
+    }
+
+    .intro-desc {
+      font-size: calc(1.05 * var(--u));
+      color: var(--ink);
+      line-height: 1.45;
+      margin: 0;
+      font-weight: 500;
+    }
+
+    .intro-open-btn {
+      position: absolute;
+      top: calc(46 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--teal);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.5 * var(--u));
+      padding: calc(0.8 * var(--u)) calc(2.4 * var(--u));
+      border-radius: 999px;
+      border: none;
+      box-shadow: 0 calc(0.4 * var(--u)) 0 var(--teal-d), 0 calc(0.8 * var(--u)) calc(1.2 * var(--u)) rgba(0,0,0,0.25);
+      cursor: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .intro-open-btn:hover {
+      transform: translateX(-50%) translateY(-2px);
+      box-shadow: 0 calc(0.5 * var(--u)) 0 var(--teal-d), 0 calc(1 * var(--u)) calc(1.5 * var(--u)) rgba(0,0,0,0.3);
+    }
+
+    /* When body has class .open, hide intro and animate builder */
+    body.open #intro-screen {
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-20px) scale(0.96);
+    }
+
+    body.open .intro-box-wrap {
+      transform: translateY(-40px) rotate(-4deg);
+      opacity: 0;
+    }
+
+    body.open .intro-copy {
+      transform: translateX(-40px);
+      opacity: 0;
+    }
+
+    /* BUILDER CONTAINER */
+    #builder {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    body.open #builder {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* Pans (Hotel Pans) */
+    .hotel-pan {
+      position: absolute;
+      width: calc(9.2 * var(--u));
+      height: calc(9.4 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .hotel-pan:hover {
+      transform: translateY(-5px) scale(1.03);
+    }
+
+    .pan-sprite {
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+    }
+
+    .pan-tag {
+      position: absolute;
+      bottom: calc(-1.8 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--teal);
+      color: #fff;
+      padding: calc(0.2 * var(--u)) calc(0.6 * var(--u));
+      border-radius: 999px;
+      font-size: calc(0.72 * var(--u));
+      font-weight: 700;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: calc(0.3 * var(--u));
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      transition: background 0.2s;
+    }
+
+    .pan-tag.used {
+      background: var(--coral);
+    }
+
+    .tag-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: calc(1.1 * var(--u));
+      height: calc(1.1 * var(--u));
+      background: #fff;
+      border-radius: 50%;
+      font-size: calc(0.7 * var(--u));
+    }
+
+    /* Bottles */
+    .squeeze-bottle {
+      position: absolute;
+      top: calc(4.4 * var(--u));
+      width: calc(5.6 * var(--u));
+      height: calc(16 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+    }
+
+    .squeeze-bottle:hover {
+      transform: translateY(-6px) rotate(-3deg);
+    }
+
+    .squeeze-bottle.lifted {
+      opacity: 0.15;
+    }
+
+    .bottle-sprite {
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+    }
+
+    .bottle-tag {
+      position: absolute;
+      bottom: calc(-0.8 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--cream);
+      color: var(--ink);
+      border: 1.5px solid var(--teal);
+      padding: calc(0.2 * var(--u)) calc(0.6 * var(--u));
+      border-radius: 999px;
+      font-size: calc(0.72 * var(--u));
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .bottle-tag.used {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    /* Open Bento Box */
+    #open-bento-box {
+      position: absolute;
+      left: calc(29.5 * var(--u));
+      top: calc(22.4 * var(--u));
+      width: calc(42 * var(--u));
+      height: calc(28 * var(--u));
+      z-index: 15;
+    }
+
+    .bento-sprite {
+      position: absolute;
+      inset: 0;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+      pointer-events: none;
+    }
+
+    /* Left Compartment & Bowl */
+    #bowl-compartment {
+      position: absolute;
+      left: calc(2.2 * var(--u));
+      top: calc(1.5 * var(--u));
+      width: calc(24.5 * var(--u));
+      height: calc(24.5 * var(--u));
+      border-radius: 50%;
+      transition: box-shadow 0.2s;
+    }
+
+    #bowl-compartment.drag-hover {
+      box-shadow: 0 0 25px 8px var(--coral);
+    }
+
+    .bowl-layer {
+      position: absolute;
+      inset: 0;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+      transition: opacity 0.4s ease, transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    #bowl-empty {
+      opacity: 1;
+    }
+
+    #bowl-rice {
+      opacity: 0;
+    }
+
+    .bowl-squash {
+      animation: bowlSquash 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes bowlSquash {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.06, 0.94); }
+      75% { transform: scale(0.97, 1.03); }
+      100% { transform: scale(1); }
+    }
+
+    /* Toppings Drop Zone & Rice Surface */
+    #toppings-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .topping-pile {
+      position: absolute;
+      pointer-events: auto;
+      cursor: none;
+      filter: drop-shadow(0 8px 8px rgba(0,0,0,0.3));
+      animation: pileDrop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: transform 0.15s ease;
+    }
+
+    .topping-pile:hover {
+      transform: scale(1.08) !important;
+    }
+
+    @keyframes pileDrop {
+      0% { transform: translateY(-40%) scale(1.25); opacity: 0; }
+      70% { transform: translateY(0) scale(1.08, 0.9); opacity: 1; }
+      100% { transform: translateY(0) scale(1, 1); opacity: 1; }
+    }
+
+    /* Sauce Canvas */
+    #sauce-canvas {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 30;
+    }
+
+    /* Garnish Canvas */
+    #garnish-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 35;
+      overflow: hidden;
+    }
+
+    .garnish-piece {
+      position: absolute;
+      pointer-events: none;
+      border-radius: 2px;
+      animation: garnishFall 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    @keyframes garnishFall {
+      0% {
+        transform: translateY(-80px) rotate(0deg);
+        opacity: 0;
+      }
+      60% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(0) rotate(var(--rot));
+        opacity: 1;
+      }
+    }
+
+    /* Right Compartment (Side & Card) */
+    #side-compartment {
+      position: absolute;
+      right: calc(1.8 * var(--u));
+      top: calc(2.4 * var(--u));
+      width: calc(12.5 * var(--u));
+      height: calc(22 * var(--u));
+      border-radius: calc(1.5 * var(--u));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: box-shadow 0.2s;
+    }
+
+    #side-compartment.drag-hover {
+      box-shadow: 0 0 20px 6px var(--coral);
+    }
+
+    .bento-card {
+      font-family: 'Caveat Brush', cursive;
+      color: var(--coral);
+      font-size: calc(1.6 * var(--u));
+      text-align: center;
+      line-height: 1.25;
+      transform: rotate(-2deg);
+      transition: transform 0.5s ease, opacity 0.4s ease;
+      background: var(--cream);
+      padding: calc(1.2 * var(--u));
+      border-radius: calc(1 * var(--u));
+      box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      border: 1px dashed var(--coral);
+    }
+
+    .bento-card.spun-away {
+      transform: rotate(35deg) scale(0.2) translate(150px, -150px);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .bento-side-placed {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: sideBounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes sideBounce {
+      0% { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+      70% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* Sides on the Shelf */
+    .side-item {
+      position: absolute;
+      left: calc(83.5 * var(--u));
+      width: calc(11 * var(--u));
+      height: calc(12.4 * var(--u));
+      cursor: none;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
+    }
+
+    .side-item:hover {
+      transform: translateY(-5px) scale(1.03);
+    }
+
+    .side-item.dimmed {
+      opacity: 0.35;
+    }
+
+    .side-sprite {
+      width: 100%;
+      height: 100%;
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 10px 10px rgba(0,0,0,.35));
+    }
+
+    .side-tag {
+      position: absolute;
+      bottom: calc(-1.2 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--teal);
+      color: #fff;
+      padding: calc(0.2 * var(--u)) calc(0.8 * var(--u));
+      border-radius: 999px;
+      font-size: calc(0.72 * var(--u));
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Bottom Bar */
+    #bottom-bar {
+      position: absolute;
+      top: calc(51.2 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--cream);
+      border: 2px solid var(--teal);
+      padding: calc(0.5 * var(--u)) calc(1.5 * var(--u));
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: calc(1.5 * var(--u));
+      box-shadow: 0 calc(0.6 * var(--u)) calc(1.6 * var(--u)) rgba(0,0,0,0.2);
+      z-index: 60;
+    }
+
+    .steps-list {
+      display: flex;
+      align-items: center;
+      gap: calc(1 * var(--u));
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      font-size: calc(0.85 * var(--u));
+      font-weight: 600;
+      color: var(--ink);
+      padding: calc(0.25 * var(--u)) calc(0.6 * var(--u));
+      border-radius: 999px;
+      transition: background 0.2s;
+    }
+
+    .step-item.active {
+      background: var(--teal-l);
+    }
+
+    .step-num {
+      width: calc(1.2 * var(--u));
+      height: calc(1.2 * var(--u));
+      border-radius: 50%;
+      border: 1.5px solid var(--teal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(0.75 * var(--u));
+      font-weight: 700;
+      color: var(--teal);
+    }
+
+    .step-item.done .step-num {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .bar-total-wrap {
+      font-family: 'Courier Prime', monospace;
+      font-weight: 700;
+      font-size: calc(1.2 * var(--u));
+      color: var(--ink);
+      padding-left: calc(0.6 * var(--u));
+      border-left: 2px dashed #d5ccc0;
+    }
+
+    .top-it-off-btn {
+      background: var(--coral);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.1 * var(--u));
+      padding: calc(0.4 * var(--u)) calc(1.2 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      opacity: 0.45;
+      pointer-events: none;
+      box-shadow: 0 2px 0 var(--coral-d);
+      transition: transform 0.15s, opacity 0.2s;
+    }
+
+    .top-it-off-btn.enabled {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .top-it-off-btn.enabled:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 0 var(--coral-d);
+    }
+
+    .undo-btn {
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      color: var(--teal);
+      text-decoration: underline;
+      cursor: none;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    /* Toast */
+    #toast {
+      position: absolute;
+      top: calc(47 * var(--u));
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--teal);
+      color: #fff;
+      font-size: calc(0.95 * var(--u));
+      font-weight: 700;
+      padding: calc(0.4 * var(--u)) calc(1.4 * var(--u));
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(13, 106, 110, 0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease;
+      z-index: 70;
+    }
+
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* RECEIPT */
+    #receipt-wrap {
+      position: absolute;
+      left: calc(3.5 * var(--u));
+      top: calc(9.5 * var(--u));
+      width: calc(23 * var(--u));
+      background: var(--cream);
+      border-radius: calc(0.8 * var(--u)) calc(0.8 * var(--u)) 0 0;
+      padding: calc(1.4 * var(--u)) calc(1.4 * var(--u)) calc(2.4 * var(--u)) calc(1.4 * var(--u));
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      z-index: 80;
+      transform: translateX(-140%) rotate(-1.2deg);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      mask-image: radial-gradient(circle at 10px bottom, transparent 8px, black 8.5px);
+      mask-size: 20px 100%;
+      mask-repeat: repeat-x;
+      -webkit-mask-image: radial-gradient(circle at 10px bottom, transparent 8px, black 8.5px);
+      -webkit-mask-size: 20px 100%;
+      -webkit-mask-repeat: repeat-x;
+    }
+
+    #receipt-wrap.active {
+      transform: translateX(0) rotate(-1.2deg);
+    }
+
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px dashed #d5ccc0;
+      padding-bottom: calc(0.8 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+    }
+
+    .receipt-brand {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(2 * var(--u));
+      color: var(--teal);
+      margin: 0;
+    }
+
+    .receipt-tagline {
+      font-family: 'Caveat Brush', cursive;
+      font-size: calc(1.1 * var(--u));
+      color: var(--coral);
+      margin: calc(0.2 * var(--u)) 0 0 0;
+    }
+
+    .receipt-lines {
+      font-family: 'Courier Prime', monospace;
+      font-size: calc(0.82 * var(--u));
+      line-height: 1.6;
+      color: var(--ink);
+      min-height: calc(8 * var(--u));
+    }
+
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s, transform 0.2s;
+    }
+
+    .receipt-row.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .receipt-divider {
+      border-top: 2px dashed #d5ccc0;
+      margin: calc(0.6 * var(--u)) 0;
+    }
+
+    .receipt-mode-radios {
+      display: flex;
+      gap: calc(0.8 * var(--u));
+      font-size: calc(0.8 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+      font-weight: 600;
+    }
+
+    .receipt-mode-radios label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: none;
+    }
+
+    .receipt-actions {
+      display: flex;
+      flex-direction: column;
+      gap: calc(0.5 * var(--u));
+      margin-top: calc(0.8 * var(--u));
+    }
+
+    .btn-checkout {
+      background: var(--teal);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.15 * var(--u));
+      padding: calc(0.5 * var(--u)) calc(1.2 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      box-shadow: 0 3px 0 var(--teal-d);
+      transition: transform 0.1s;
+    }
+
+    .btn-checkout:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-back {
+      background: none;
+      border: none;
+      color: var(--teal-d);
+      font-size: calc(0.75 * var(--u));
+      font-weight: 700;
+      cursor: none;
+      text-decoration: underline;
+    }
+
+    /* CHECKOUT MODAL */
+    #modal-checkout {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 59, 62, 0.45);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #modal-checkout.show {
+      display: flex;
+    }
+
+    .checkout-card {
+      width: calc(34 * var(--u));
+      background: var(--coral-l);
+      border: 3px solid var(--coral);
+      border-radius: calc(1.8 * var(--u));
+      padding: calc(2 * var(--u));
+      box-shadow: 0 calc(1.2 * var(--u)) calc(3 * var(--u)) rgba(0, 0, 0, 0.3);
+      transform: rotate(-1deg);
+      animation: modalSpring 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes modalSpring {
+      0% { transform: scale(0.7) rotate(-5deg); opacity: 0; }
+      100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+    }
+
+    .checkout-title {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(2.4 * var(--u));
+      color: var(--teal-d);
+      line-height: 1.1;
+      margin: 0 0 calc(1 * var(--u)) 0;
+    }
+
+    .checkout-field {
+      margin-bottom: calc(0.9 * var(--u));
+    }
+
+    .checkout-field label {
+      display: block;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: calc(0.3 * var(--u));
+    }
+
+    .checkout-field input, .checkout-field select {
+      width: 100%;
+      background: #fff;
+      border: 2px solid var(--teal-d);
+      border-radius: calc(0.6 * var(--u));
+      padding: calc(0.5 * var(--u)) calc(0.8 * var(--u));
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.9 * var(--u));
+      color: var(--ink);
+      outline: none;
+      cursor: none;
+    }
+
+    .checkout-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: calc(1 * var(--u)) 0;
+      font-family: 'Courier Prime', monospace;
+      font-size: calc(1.3 * var(--u));
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .btn-place-order {
+      width: 100%;
+      background: var(--teal);
+      color: #fff;
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.4 * var(--u));
+      padding: calc(0.7 * var(--u));
+      border-radius: 999px;
+      border: none;
+      cursor: none;
+      box-shadow: 0 calc(0.3 * var(--u)) 0 var(--teal-d);
+      transition: transform 0.1s;
+    }
+
+    .btn-place-order:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Order Success Box */
+    .order-success-card {
+      text-align: center;
+      padding: calc(1 * var(--u)) 0;
+    }
+
+    .success-tick {
+      width: calc(5 * var(--u));
+      height: calc(5 * var(--u));
+      border-radius: 50%;
+      background: var(--teal);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: calc(2.8 * var(--u));
+      margin-bottom: calc(1 * var(--u));
+      box-shadow: 0 6px 16px rgba(13, 106, 110, 0.4);
+    }
+
+    /* Held item under cursor */
+    #held {
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      display: none;
+      transform: translate(-50%, -50%);
+    }
+
+    #held .held-inner {
+      background-repeat: no-repeat;
+      filter: drop-shadow(0 20px 20px rgba(0,0,0,0.45));
+    }
+
+    /* Glove Cursor (#glove) */
+    #glove {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 58px;
+      height: 62px;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-18px, -14px);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Counter -->
+  <div id="counter"></div>
+
+  <!-- 16:9 Contained Interactive Scene -->
+  <div id="scene">
+
+    <!-- Top Nav Band -->
+    <header id="band">
+      <nav class="nav-links">
+        <a href="#menu" class="nav-link">Menu</a>
+        <a href="#build" class="nav-link">Build Your Poke Bowl</a>
+        <a href="#bowls" class="nav-link">Bowls</a>
+        <a href="#sides" class="nav-link">Sides</a>
+        <a href="#drinks" class="nav-link">Drinks</a>
+        <a href="#help" class="nav-link">Help</a>
+      </nav>
+
+      <button id="how-btn" class="how-it-works-btn" type="button">
+        <span>How it works</span>
+        <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;">?</span>
+      </button>
+
+      <!-- How it works Popover -->
+      <div id="how-popover">
+        <h4>How to build:</h4>
+        <ol>
+          <li>Grab rice, then your toppings.</li>
+          <li>Pick up a bottle and drizzle.</li>
+          <li>Drop in a side, top it off, check out.</li>
+        </ol>
+      </div>
+    </header>
+
+    <!-- Logo & Subtitle -->
+    <div id="logo-wrap">
+      <div class="brand-title">
+        <span class="brand-poke">POKE</span>
+        <span class="brand-pal">PAL</span>
+      </div>
+      <div class="brand-sub">Fresh bowls.<br>Better days.</div>
+    </div>
+
+    <!-- Handwritten Stickers -->
+    <div class="sticker sticker-together">Better together.</div>
+    <div class="sticker sticker-yours">Make it yours!</div>
+    <div class="sticker sticker-pokepal">Poke Pal!</div>
+
+    <!-- INTRO SCREEN (Closed Teal Box) -->
+    <div id="intro-screen">
+      <div class="intro-copy">
+        <h1 class="intro-headline">Good things come in bowls.</h1>
+        <p class="intro-desc">A little rice, a lot of fresh. Build your bowl, sauce it up and grab a side.</p>
+      </div>
+
+      <div id="closed-box-elem" class="intro-box-wrap"></div>
+
+      <button id="open-box-btn" class="intro-open-btn" type="button">
+        Open for something fresh ↗
+      </button>
+    </div>
+
+    <!-- BUILDER AREA -->
+    <div id="builder">
+      <!-- 8 Hotel Pans in 2 Columns -->
+      <div id="pans-container"></div>
+
+      <!-- 3 Squeeze Bottles -->
+      <div id="bottles-container"></div>
+
+      <!-- Bento Box, Bowl & Side Compartment -->
+      <div id="open-bento-box">
+        <div id="bento-box-sprite" class="bento-sprite"></div>
+
+        <!-- Left Compartment: Bowl with Rice & Toppings -->
+        <div id="bowl-compartment">
+          <div id="bowl-empty" class="bowl-layer"></div>
+          <div id="bowl-rice" class="bowl-layer"></div>
+
+          <!-- Toppings Piles Layer -->
+          <div id="toppings-layer"></div>
+
+          <!-- Sauce Canvas Overlay -->
+          <canvas id="sauce-canvas"></canvas>
+
+          <!-- Garnish Particles Container -->
+          <div id="garnish-container"></div>
+        </div>
+
+        <!-- Right Compartment: Menu Card or Dropped Side -->
+        <div id="side-compartment">
+          <div id="bento-card" class="bento-card">
+            Poke Bowl<br>
+            <span style="font-size:0.7em;opacity:0.85;">Fresh ingredients · Big vibes</span>
+          </div>
+          <div id="placed-side-layer"></div>
+        </div>
+      </div>
+
+      <!-- Sides on Shelf (Right side) -->
+      <div id="sides-container"></div>
+
+      <!-- Bottom Step Bar -->
+      <div id="bottom-bar">
+        <div class="steps-list">
+          <div id="step-1" class="step-item active">
+            <span class="step-num">1</span>
+            <span>Choose base</span>
+          </div>
+          <div id="step-2" class="step-item">
+            <span class="step-num">2</span>
+            <span>Add proteins</span>
+          </div>
+          <div id="step-3" class="step-item">
+            <span class="step-num">3</span>
+            <span>Pick toppings</span>
+          </div>
+          <div id="step-4" class="step-item">
+            <span class="step-num">4</span>
+            <span>Select sauce</span>
+          </div>
+        </div>
+
+        <div class="bar-total-wrap">
+          $<span id="live-total">0.00</span>
+        </div>
+
+        <button id="top-it-off-btn" class="top-it-off-btn" type="button">
+          Top it off ↗
+        </button>
+
+        <button id="undo-btn" class="undo-btn" type="button">
+          ↺ Undo
+        </button>
+      </div>
+
+      <!-- Toast Alert -->
+      <div id="toast">Grab some sushi rice to start.</div>
+
+      <!-- Printed Rolling Receipt -->
+      <div id="receipt-wrap">
+        <div class="receipt-header">
+          <h2 class="receipt-brand">POKE PAL</h2>
+          <div class="receipt-tagline">ONE VERY GOOD BOWL</div>
+        </div>
+
+        <div id="receipt-items" class="receipt-lines"></div>
+
+        <div class="receipt-divider"></div>
+
+        <div class="receipt-mode-radios">
+          <label>
+            <input type="radio" name="order-mode" value="pickup" checked>
+            <span>Pick up</span>
+          </label>
+          <label>
+            <input type="radio" name="order-mode" value="delivery">
+            <span>Delivery (+$4.00)</span>
+          </label>
+        </div>
+
+        <div class="receipt-row visible" style="font-weight:700;font-size:calc(1*var(--u));margin-bottom:calc(0.6*var(--u));">
+          <span>TOTAL:</span>
+          <span>$<span id="receipt-final-total">0.00</span></span>
+        </div>
+
+        <div class="receipt-actions">
+          <button id="receipt-checkout-btn" class="btn-checkout" type="button">Checkout ↗</button>
+          <button id="receipt-back-btn" class="btn-back" type="button">← Back to building</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div id="modal-checkout">
+      <div class="checkout-card">
+        <div id="checkout-form-content">
+          <h2 class="checkout-title">Good food.<br>Coming your way.</h2>
+
+          <div class="checkout-field">
+            <label>Your name</label>
+            <input type="text" id="cust-name" value="Alex Morgan" required>
+          </div>
+
+          <div class="checkout-field">
+            <label>Phone</label>
+            <input type="tel" id="cust-phone" value="(555) 349-2041" required>
+          </div>
+
+          <div class="checkout-field">
+            <label id="loc-select-label">Pick up at</label>
+            <select id="cust-location">
+              <option value="loc1">Poke Pal — Downtown (842 Market St)</option>
+              <option value="loc2">Poke Pal — Marina (2104 Chestnut St)</option>
+            </select>
+          </div>
+
+          <div class="checkout-total-row">
+            <span>Amount due:</span>
+            <span>$<span id="modal-final-total">0.00</span></span>
+          </div>
+
+          <button id="place-order-btn" class="btn-place-order" type="button">
+            Place my order ↗
+          </button>
+        </div>
+
+        <div id="checkout-success-content" class="order-success-card" style="display:none;">
+          <div class="success-tick">✓</div>
+          <h2 class="checkout-title" style="margin-bottom:calc(0.5*var(--u));">Order #PP-2481</h2>
+          <p style="font-size:calc(1*var(--u));margin-bottom:calc(1.5*var(--u));font-weight:500;">
+            We're building your bowl right now!
+          </p>
+          <button id="reset-builder-btn" class="btn-place-order" type="button">
+            Build another bowl
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Held item element under glove -->
+  <div id="held">
+    <div id="held-inner" class="held-inner"></div>
+  </div>
+
+  <!-- Rubber Glove Cursor SVG -->
+  <svg id="glove" viewBox="0 0 58 62" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Glove Drop Shadow & Outline -->
+    <g id="glove-shape">
+      <!-- Open Hand State -->
+      <path id="glove-path-open" d="M14 26 C14 20, 18 10, 24 10 C27 10, 28 14, 28 20 L28 21 C29 15, 33 8, 38 9 C41 10, 42 14, 41 21 L41 22 C43 17, 47 13, 51 15 C54 17, 54 22, 51 28 L49 32 C54 32, 57 35, 56 39 C55 45, 48 56, 38 58 L20 58 C14 55, 10 46, 10 39 L10 30 C10 26, 12 25, 14 26 Z" fill="#f2766a" stroke="#a8392f" stroke-width="2.2" stroke-linejoin="round" />
+
+      <!-- Point State (Index finger extended) -->
+      <path id="glove-path-point" d="M16 26 C16 16, 19 4, 24 4 C27 4, 29 8, 28 18 L28 25 C30 23, 33 22, 36 24 C38 26, 38 30, 36 33 L35 35 C38 35, 40 37, 40 40 C40 44, 37 46, 34 47 L34 48 C37 49, 39 51, 38 54 C36 58, 28 60, 20 59 L14 57 C10 52, 10 44, 10 38 L10 30 C10 26, 13 25, 16 26 Z" fill="#f2766a" stroke="#a8392f" stroke-width="2.2" stroke-linejoin="round" style="display:none;" />
+
+      <!-- Grab State (Closed gripping glove) -->
+      <path id="glove-path-grab" d="M16 32 C16 26, 20 22, 26 22 C31 22, 34 25, 34 29 C36 26, 41 25, 45 28 C48 30, 48 35, 46 39 C49 39, 52 42, 51 46 C50 52, 44 58, 35 59 L20 59 C13 56, 11 48, 11 40 L11 34 C11 31, 13 31, 16 32 Z" fill="#f2766a" stroke="#a8392f" stroke-width="2.2" stroke-linejoin="round" style="display:none;" />
+    </g>
+    <!-- Glove Cuff Highlights & Details -->
+    <path d="M18 53 C24 55, 32 55, 38 53" stroke="#a8392f" stroke-width="1.8" stroke-linecap="round" />
+  </svg>
+
+  <script>
+    /* =========================================================
+       1. ASSETS & SPRITE COORDINATES SPECIFICATION
+       ========================================================= */
+    const CDN = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/';
+    const H = (file, w) => 'https://images.higgs.ai/?default=1&output=webp&url=' + encodeURIComponent(CDN + file) + '&w=' + w + '&q=86';
+
+    const URLS = {
+      bg: H('hf_20261114_042539_bee90308-05ef-4b87-a91f-6b86c7e02f94.png', 2400),
+      tr: H('hf_20261114_042539_ad6880ac-f262-4716-90ed-24c287232feb.png', 1500),
+      pl: H('hf_20261114_042538_7987a8aa-885b-4db2-a664-50e7ee9fb13f.png', 1500),
+      bw: H('hf_20261114_042538_efc215bc-128e-481e-a1e2-3d026dd6ab81.png', 1500),
+      bt: H('hf_20261114_042538_a703fa03-9bb4-49d9-be23-1bde093c65c4.png', 1500),
+      sd: H('hf_20261114_042538_c8c2be5c-8263-42df-b8b8-08a5f89d3532.png', 1500),
+      bxo: H('hf_20261114_042538_bdab28e0-83c2-48fc-8f65-12d376fddcaf.png', 1500),
+      bxc: H('hf_20261114_042539_7e258e75-50d8-422c-8395-8506fa6fa210.png', 1500),
+    };
+
+    const INGREDIENTS = [
+      { id: 'rice', name: 'Sushi rice', price: 8.00, icon: '🍚', isBase: true, isProtein: false, panBox: [1539,687,2020,1204], portionBox: [1569,742,2000,1207], col: 0, row: 0 },
+      { id: 'salmon', name: 'Salmon', price: 3.00, icon: '🐟', isBase: false, isProtein: true, panBox: [51,149,511,638], portionBox: [48,185,490,647], col: 1, row: 0 },
+      { id: 'tuna', name: 'Tuna', price: 3.00, icon: '🐟', isBase: false, isProtein: true, panBox: [542,146,1009,632], portionBox: [564,187,1006,641], col: 0, row: 1 },
+      { id: 'avocado', name: 'Avocado', price: 1.00, icon: '🥑', isBase: false, isProtein: false, panBox: [1043,150,1535,629], portionBox: [1075,197,1501,656], col: 1, row: 1 },
+      { id: 'edamame', name: 'Edamame', price: 0.75, icon: '🫛', isBase: false, isProtein: false, panBox: [1536,149,1998,631], portionBox: [1548,193,1982,646], col: 0, row: 2 },
+      { id: 'cucumber', name: 'Cucumber', price: 0.75, icon: '🥒', isBase: false, isProtein: false, panBox: [33,687,508,1203], portionBox: [45,740,497,1214], col: 1, row: 2 },
+      { id: 'mango', name: 'Mango', price: 1.00, icon: '🥭', isBase: false, isProtein: false, panBox: [535,689,1009,1201], portionBox: [557,744,992,1214], col: 0, row: 3 },
+      { id: 'seaweed', name: 'Seaweed salad', price: 0.75, icon: '🥗', isBase: false, isProtein: false, panBox: [1044,687,1519,1198], portionBox: [1057,740,1501,1217], col: 1, row: 3 }
+    ];
+
+    const BOTTLES = [
+      { id: 'shoyu', name: 'Shoyu', price: 0.00, color: '#3a1c0e', box: [302,104,691,1222], x: 31 },
+      { id: 'spicy_mayo', name: 'Spicy mayo', price: 0.00, color: '#ee8a3a', box: [826,102,1222,1221], x: 38 },
+      { id: 'ponzu', name: 'Ponzu', price: 0.00, color: '#e9dcae', box: [1354,107,1746,1218], x: 45 }
+    ];
+
+    const SIDES = [
+      { id: 'miso', name: 'Miso soup', price: 2.50, box: [26,323,619,1033], top: 8.2 },
+      { id: 'gyoza', name: 'Gyoza', price: 4.00, box: [628,447,1458,1037], top: 21.8 },
+      { id: 'crackers', name: 'Prawn crackers', price: 3.50, box: [1457,304,2036,1048], top: 35.4 }
+    ];
+
+    const BOX_SPRITES = {
+      bowlEmpty: [168,245,930,1140],
+      bowlRice: [1110,247,1866,1143],
+      openBox: [259,141,1879,1216],
+      closedBox: [247,136,1901,1261]
+    };
+
+    /* Helper: Apply Sprite CSS */
+    function applySprite(el, sheetUrl, box, containerW, containerH) {
+      const [x0, y0, x1, y1] = box;
+      const w = x1 - x0;
+      const h = y1 - y0;
+      const k = Math.min(containerW / w, containerH / h);
+      const dispW = w * k;
+      const dispH = h * k;
+      el.style.width = `${dispW}px`;
+      el.style.height = `${dispH}px`;
+      el.style.backgroundImage = `url('${sheetUrl}')`;
+      el.style.backgroundSize = `${2048 * k}px ${1360 * k}px`;
+      el.style.backgroundPosition = `${-x0 * k}px ${-y0 * k}px`;
+      el.style.backgroundRepeat = 'no-repeat';
+    }
+
+    /* =========================================================
+       2. GLOVE CURSOR & TRACKING
+       ========================================================= */
+    const glove = document.getElementById('glove');
+    const pathOpen = document.getElementById('glove-path-open');
+    const pathPoint = document.getElementById('glove-path-point');
+    const pathGrab = document.getElementById('glove-path-grab');
+    const held = document.getElementById('held');
+    const heldInner = document.getElementById('held-inner');
+
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let gloveState = 'open'; // 'open' | 'point' | 'grab'
+
+    function setGloveState(state) {
+      gloveState = state;
+      pathOpen.style.display = state === 'open' ? 'block' : 'none';
+      pathPoint.style.display = state === 'point' ? 'block' : 'none';
+      pathGrab.style.display = state === 'grab' ? 'block' : 'none';
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+      glove.style.transform = `translate(${mouseX - 18}px, ${mouseY - 14}px)`;
+
+      if (heldItem) {
+        held.style.display = 'block';
+        held.style.left = `${mouseX}px`;
+        held.style.top = `${mouseY}px`;
+      } else {
+        held.style.display = 'none';
+        // Auto point over interactive elements
+        const target = e.target.closest('button, a, .hotel-pan, .squeeze-bottle, .side-item, .topping-pile, input, select, .how-it-works-btn, .intro-box-wrap');
+        setGloveState(target ? 'point' : 'open');
+      }
+    });
+
+    /* =========================================================
+       3. BUILDER STATE & UNDO ENGINE
+       ========================================================= */
+    let state = {
+      hasRice: false,
+      piles: [], // [{ id, name, price, x, y, zIndex }]
+      sauces: [], // [{ id, name, color, path }]
+      side: null, // { id, name, price }
+      isTopped: false,
+      isReceiptOpen: false,
+      orderMode: 'pickup'
+    };
+
+    let undoStack = [];
+
+    function saveUndoState() {
+      undoStack.push(JSON.parse(JSON.stringify(state)));
+      if (undoStack.length > 25) undoStack.shift();
+    }
+
+    function doUndo() {
+      if (undoStack.length === 0) {
+        showToast("Nothing to undo.");
+        return;
+      }
+      state = undoStack.pop();
+      renderAllFromState();
+      showToast("Undone.");
+    }
+
+    document.getElementById('undo-btn').addEventListener('click', doUndo);
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        doUndo();
+      }
+      if (e.key === 'Escape' && heldItem) {
+        dropHeldItemBack();
+      }
+    });
+
+    /* =========================================================
+       4. INITIALIZATION & SPRITE RENDERING
+       ========================================================= */
+    const pansContainer = document.getElementById('pans-container');
+    const bottlesContainer = document.getElementById('bottles-container');
+    const sidesContainer = document.getElementById('sides-container');
+    const closedBoxElem = document.getElementById('closed-box-elem');
+    const bentoSprite = document.getElementById('bento-box-sprite');
+    const bowlEmpty = document.getElementById('bowl-empty');
+    const bowlRice = document.getElementById('bowl-rice');
+    const toast = document.getElementById('toast');
+    let toastTimeout = null;
+
+    function showToast(text) {
+      toast.innerText = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 1600);
+    }
+
+    function initSprites() {
+      // Closed Box
+      applySprite(closedBoxElem, URLS.bxc, BOX_SPRITES.closedBox, closedBoxElem.clientWidth, closedBoxElem.clientHeight);
+
+      // Open Box & Bowls
+      const openBox = document.getElementById('open-bento-box');
+      applySprite(bentoSprite, URLS.bxo, BOX_SPRITES.openBox, openBox.clientWidth, openBox.clientHeight);
+
+      const bowlComp = document.getElementById('bowl-compartment');
+      applySprite(bowlEmpty, URLS.bw, BOX_SPRITES.bowlEmpty, bowlComp.clientWidth, bowlComp.clientHeight);
+      applySprite(bowlRice, URLS.bw, BOX_SPRITES.bowlRice, bowlComp.clientWidth, bowlComp.clientHeight);
+
+      // 8 Pans
+      const colX = [2.4, 12.4];
+      const rowY = [11.8, 21.4, 31.0, 40.6];
+      INGREDIENTS.forEach((ing) => {
+        const pan = document.createElement('div');
+        pan.className = 'hotel-pan';
+        pan.id = `pan-${ing.id}`;
+        pan.style.left = `calc(${colX[ing.col]} * var(--u))`;
+        pan.style.top = `calc(${rowY[ing.row]} * var(--u))`;
+
+        const sprite = document.createElement('div');
+        sprite.className = 'pan-sprite';
+        pan.appendChild(sprite);
+
+        const tag = document.createElement('div');
+        tag.className = 'pan-tag';
+        tag.id = `tag-${ing.id}`;
+        tag.innerHTML = `
+          <span class="tag-icon">${ing.icon}</span>
+          <span>${ing.name} ${ing.price === 8 ? '$8.00' : '+$' + ing.price.toFixed(2)}</span>
+        `;
+        pan.appendChild(tag);
+
+        pansContainer.appendChild(pan);
+
+        setTimeout(() => {
+          applySprite(sprite, URLS.tr, ing.panBox, pan.clientWidth, pan.clientHeight);
+        }, 50);
+
+        pan.addEventListener('mousedown', (e) => startDragItem('ingredient', ing, e));
+      });
+
+      // 3 Bottles
+      BOTTLES.forEach((bt) => {
+        const bottle = document.createElement('div');
+        bottle.className = 'squeeze-bottle';
+        bottle.id = `bottle-${bt.id}`;
+        bottle.style.left = `calc(${bt.x} * var(--u))`;
+
+        const sprite = document.createElement('div');
+        sprite.className = 'bottle-sprite';
+        bottle.appendChild(sprite);
+
+        const tag = document.createElement('div');
+        tag.className = 'bottle-tag';
+        tag.id = `bottle-tag-${bt.id}`;
+        tag.innerText = `${bt.name} $0.00`;
+        bottle.appendChild(tag);
+
+        bottlesContainer.appendChild(bottle);
+
+        setTimeout(() => {
+          applySprite(sprite, URLS.bt, bt.box, bottle.clientWidth, bottle.clientHeight);
+        }, 50);
+
+        bottle.addEventListener('mousedown', (e) => startDragItem('bottle', bt, e));
+      });
+
+      // 3 Sides
+      SIDES.forEach((sd) => {
+        const side = document.createElement('div');
+        side.className = 'side-item';
+        side.id = `side-${sd.id}`;
+        side.style.top = `calc(${sd.top} * var(--u))`;
+
+        const sprite = document.createElement('div');
+        sprite.className = 'side-sprite';
+        side.appendChild(sprite);
+
+        const tag = document.createElement('div');
+        tag.className = 'side-tag';
+        tag.id = `side-tag-${sd.id}`;
+        tag.innerText = `${sd.name} $${sd.price.toFixed(2)}`;
+        side.appendChild(tag);
+
+        sidesContainer.appendChild(side);
+
+        setTimeout(() => {
+          applySprite(sprite, URLS.sd, sd.box, side.clientWidth, side.clientHeight);
+        }, 50);
+
+        side.addEventListener('mousedown', (e) => startDragItem('side', sd, e));
+      });
+
+      // Resize Sauce Canvas to match Bowl Compartment
+      resizeSauceCanvas();
+    }
+
+    window.addEventListener('resize', () => {
+      // re-apply key sprites
+      initSprites();
+    });
+
+    /* =========================================================
+       5. INTRO OPEN SEQUENCE
+       ========================================================= */
+    const openBoxBtn = document.getElementById('open-box-btn');
+    function openBuilder() {
+      if (document.body.classList.contains('open')) return;
+      document.body.classList.add('open');
+      showToast("Grab some sushi rice to start.");
+    }
+    openBoxBtn.addEventListener('click', openBuilder);
+    closedBoxElem.addEventListener('click', openBuilder);
+
+    // How it works popover toggle
+    const howBtn = document.getElementById('how-btn');
+    const howPopover = document.getElementById('how-popover');
+    howBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      howPopover.classList.toggle('show');
+    });
+    window.addEventListener('click', (e) => {
+      if (!howPopover.contains(e.target) && e.target !== howBtn) {
+        howPopover.classList.remove('show');
+      }
+    });
+
+    /* =========================================================
+       6. DRAG & DROP / INTERACTION ENGINE
+       ========================================================= */
+    let heldItem = null; // { type, data }
+    const bowlComp = document.getElementById('bowl-compartment');
+    const sideComp = document.getElementById('side-compartment');
+    const toppingsLayer = document.getElementById('toppings-layer');
+    const sauceCanvas = document.getElementById('sauce-canvas');
+    const sauceCtx = sauceCanvas.getContext('2d');
+
+    function resizeSauceCanvas() {
+      sauceCanvas.width = bowlComp.clientWidth;
+      sauceCanvas.height = bowlComp.clientHeight;
+    }
+
+    function startDragItem(type, data, e) {
+      if (e) e.preventDefault();
+      heldItem = { type, data };
+      setGloveState('grab');
+
+      // Setup #held element
+      held.style.display = 'block';
+      held.style.left = `${mouseX}px`;
+      held.style.top = `${mouseY}px`;
+
+      const bowlWidth = bowlComp.clientWidth;
+
+      if (type === 'ingredient') {
+        const portionW = bowlWidth * 0.38;
+        applySprite(heldInner, URLS.pl, data.portionBox, portionW, portionW);
+        heldInner.style.transform = 'rotate(-8deg)';
+      } else if (type === 'side') {
+        const sideW = bowlWidth * 0.55;
+        applySprite(heldInner, URLS.sd, data.box, sideW, sideW);
+        heldInner.style.transform = 'scale(0.8)';
+      } else if (type === 'bottle') {
+        const bottleH = bowlWidth * 0.7;
+        applySprite(heldInner, URLS.bt, data.box, bottleH * 0.35, bottleH);
+        heldInner.style.transform = 'rotate(-130deg)';
+        const orig = document.getElementById(`bottle-${data.id}`);
+        if (orig) orig.classList.add('lifted');
+      }
+    }
+
+    function dropHeldItemBack() {
+      if (!heldItem) return;
+      if (heldItem.type === 'bottle') {
+        const orig = document.getElementById(`bottle-${heldItem.data.id}`);
+        if (orig) orig.classList.remove('lifted');
+      }
+      heldItem = null;
+      held.style.display = 'none';
+      setGloveState('open');
+      bowlComp.classList.remove('drag-hover');
+      sideComp.classList.remove('drag-hover');
+    }
+
+    // Check hover over bowl / side
+    window.addEventListener('mousemove', (e) => {
+      if (!heldItem) return;
+
+      const bowlRect = bowlComp.getBoundingClientRect();
+      const isOverBowl = (
+        e.clientX >= bowlRect.left && e.clientX <= bowlRect.right &&
+        e.clientY >= bowlRect.top && e.clientY <= bowlRect.bottom
+      );
+      bowlComp.classList.toggle('drag-hover', isOverBowl);
+
+      const sideRect = sideComp.getBoundingClientRect();
+      const isOverSide = (
+        e.clientX >= sideRect.left && e.clientX <= sideRect.right &&
+        e.clientY >= sideRect.top && e.clientY <= sideRect.bottom
+      );
+      sideComp.classList.toggle('drag-hover', isOverSide);
+    });
+
+    // Handle Drop on Click / Release
+    window.addEventListener('mouseup', (e) => {
+      if (!heldItem) return;
+
+      const bowlRect = bowlComp.getBoundingClientRect();
+      const isOverBowl = (
+        e.clientX >= bowlRect.left && e.clientX <= bowlRect.right &&
+        e.clientY >= bowlRect.top && e.clientY <= bowlRect.bottom
+      );
+
+      const sideRect = sideComp.getBoundingClientRect();
+      const isOverSide = (
+        e.clientX >= sideRect.left && e.clientX <= sideRect.right &&
+        e.clientY >= sideRect.top && e.clientY <= sideRect.bottom
+      );
+
+      if (heldItem.type === 'ingredient') {
+        if (heldItem.data.isBase) {
+          // Rice
+          if (isOverBowl) {
+            saveUndoState();
+            state.hasRice = true;
+            document.getElementById('bowl-rice').style.opacity = '1';
+            document.getElementById('bowl-compartment').classList.add('bowl-squash');
+            setTimeout(() => document.getElementById('bowl-compartment').classList.remove('bowl-squash'), 400);
+            updateTagStatus(heldItem.data.id, true);
+            showToast("Sushi rice added.");
+            updateUI();
+          } else {
+            showToast("Drop rice into the bowl!");
+          }
+        } else {
+          // Topping
+          if (!state.hasRice) {
+            showToast("Start with sushi rice!");
+          } else if (isOverBowl) {
+            if (state.piles.length >= 8) {
+              showToast("Bowl is full (max 8 toppings)!");
+            } else {
+              saveUndoState();
+              addToppingPile(heldItem.data, e.clientX - bowlRect.left, e.clientY - bowlRect.top);
+              updateTagStatus(heldItem.data.id, true);
+              showToast(`${heldItem.data.name} added.`);
+              updateUI();
+            }
+          } else {
+            showToast("Drop toppings into the bowl!");
+          }
+        }
+      } else if (heldItem.type === 'side') {
+        if (isOverSide) {
+          saveUndoState();
+          placeSide(heldItem.data);
+          showToast(`${heldItem.data.name} on the side.`);
+          updateUI();
+        } else {
+          showToast("Drop it in the side spot!");
+        }
+      } else if (heldItem.type === 'bottle') {
+        // Bottle finished or cancelled
+        const orig = document.getElementById(`bottle-${heldItem.data.id}`);
+        if (orig) orig.classList.remove('lifted');
+      }
+
+      dropHeldItemBack();
+    });
+
+    /* =========================================================
+       7. TOPPINGS PLACEMENT & NUDGING
+       ========================================================= */
+    function addToppingPile(ing, clickX, clickY) {
+      const bowlW = bowlComp.clientWidth;
+      const bowlH = bowlComp.clientHeight;
+
+      // Rice ellipse parameters: cx .5, cy .375, rx .43, ry .31
+      const cx = 0.5 * bowlW;
+      const cy = 0.375 * bowlH;
+      const rx = 0.43 * bowlW;
+      const ry = 0.31 * bowlH;
+
+      let dx = (clickX - cx) / rx;
+      let dy = (clickY - cy) / ry;
+      let dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Snap inside ellipse at radius <= 0.62
+      if (dist > 0.62) {
+        dx = (dx / dist) * 0.62;
+        dy = (dy / dist) * 0.62;
+      }
+
+      // Nudge away from existing piles (min gap 0.38)
+      state.piles.forEach((p) => {
+        const pdx = dx - (p.nx || 0);
+        const pdy = dy - (p.ny || 0);
+        const pdist = Math.sqrt(pdx * pdx + pdy * pdy);
+        if (pdist < 0.38 && pdist > 0) {
+          dx += (pdx / pdist) * (0.38 - pdist);
+          dy += (pdy / pdist) * (0.38 - pdist);
+        }
+      });
+
+      const finalX = cx + dx * rx;
+      const finalY = cy + dy * ry;
+
+      const pileObj = {
+        id: ing.id,
+        name: ing.name,
+        price: ing.price,
+        x: finalX,
+        y: finalY,
+        nx: dx,
+        ny: dy,
+        portionBox: ing.portionBox,
+        zIndex: Math.round(finalY)
+      };
+
+      state.piles.push(pileObj);
+      renderPiles();
+    }
+
+    function renderPiles() {
+      toppingsLayer.innerHTML = '';
+      const bowlW = bowlComp.clientWidth;
+      const pileSize = bowlW * 0.42;
+
+      // Z-sort by y
+      state.piles.sort((a, b) => a.y - b.y);
+
+      state.piles.forEach((p, idx) => {
+        const pile = document.createElement('div');
+        pile.className = 'topping-pile';
+        pile.style.left = `${p.x - pileSize / 2}px`;
+        pile.style.top = `${p.y - pileSize / 2}px`;
+        pile.style.zIndex = idx + 10;
+
+        applySprite(pile, URLS.pl, p.portionBox, pileSize, pileSize);
+
+        // Click to remove pile
+        pile.addEventListener('click', (e) => {
+          e.stopPropagation();
+          saveUndoState();
+          state.piles = state.piles.filter((item) => item !== p);
+          renderPiles();
+          // Check if any other of this ingredient left
+          if (!state.piles.some((item) => item.id === p.id)) {
+            updateTagStatus(p.id, false);
+          }
+          showToast(`${p.name} removed.`);
+          updateUI();
+        });
+
+        toppingsLayer.appendChild(pile);
+      });
+    }
+
+    /* =========================================================
+       8. SAUCE SQUEEZE & DRAWING CANVAS
+       ========================================================= */
+    let isDrawingSauce = false;
+    let currentSauceStroke = [];
+
+    bowlComp.addEventListener('mousedown', (e) => {
+      if (!heldItem || heldItem.type !== 'bottle') return;
+      if (!state.hasRice) {
+        showToast("Add rice first before saucing!");
+        return;
+      }
+
+      isDrawingSauce = true;
+      currentSauceStroke = [];
+      heldInner.style.transform = 'rotate(-158deg)';
+
+      const rect = bowlComp.getBoundingClientRect();
+      addSaucePoint(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!isDrawingSauce || !heldItem || heldItem.type !== 'bottle') return;
+      const rect = bowlComp.getBoundingClientRect();
+      addSaucePoint(e.clientX - rect.left, e.clientY - rect.top);
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (!isDrawingSauce) return;
+      isDrawingSauce = false;
+
+      if (heldItem && heldItem.type === 'bottle') {
+        heldInner.style.transform = 'rotate(-130deg)';
+
+        if (currentSauceStroke.length >= 4) {
+          saveUndoState();
+          state.sauces.push({
+            id: heldItem.data.id,
+            name: heldItem.data.name,
+            color: heldItem.data.color,
+            points: [...currentSauceStroke]
+          });
+          document.getElementById(`bottle-tag-${heldItem.data.id}`).classList.add('used');
+          showToast(`${heldItem.data.name} on top.`);
+          updateUI();
+        } else {
+          // Short stroke discarded, redraw
+          redrawSauceCanvas();
+        }
+      }
+    });
+
+    function addSaucePoint(x, y) {
+      currentSauceStroke.push({ x, y });
+      drawSauceStroke(currentSauceStroke, heldItem.data.color);
+    }
+
+    function drawSauceStroke(points, color) {
+      if (points.length < 2) return;
+
+      const bowlW = bowlComp.clientWidth;
+      const bowlH = bowlComp.clientHeight;
+      const strokeW = bowlW * 0.042;
+
+      sauceCtx.save();
+      // Clip to rice ellipse
+      sauceCtx.beginPath();
+      sauceCtx.ellipse(0.5 * bowlW, 0.375 * bowlH, 0.43 * bowlW, 0.31 * bowlH, 0, 0, Math.PI * 2);
+      sauceCtx.clip();
+
+      sauceCtx.lineCap = 'round';
+      sauceCtx.lineJoin = 'round';
+
+      // 1. Dark under-stroke shadow
+      sauceCtx.beginPath();
+      sauceCtx.moveTo(points[0].x, points[0].y + 2);
+      for (let i = 1; i < points.length; i++) {
+        sauceCtx.lineTo(points[i].x, points[i].y + 2);
+      }
+      sauceCtx.strokeStyle = 'rgba(0, 0, 0, 0.28)';
+      sauceCtx.lineWidth = strokeW + 2;
+      sauceCtx.stroke();
+
+      // 2. Main color stroke
+      sauceCtx.beginPath();
+      sauceCtx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) {
+        sauceCtx.lineTo(points[i].x, points[i].y);
+      }
+      sauceCtx.strokeStyle = color;
+      sauceCtx.lineWidth = strokeW;
+      sauceCtx.stroke();
+
+      // 3. Light glossy highlight stroke
+      sauceCtx.beginPath();
+      sauceCtx.moveTo(points[0].x - 1.5, points[0].y - 1.5);
+      for (let i = 1; i < points.length; i++) {
+        sauceCtx.lineTo(points[i].x - 1.5, points[i].y - 1.5);
+      }
+      sauceCtx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      sauceCtx.lineWidth = strokeW * 0.35;
+      sauceCtx.stroke();
+
+      sauceCtx.restore();
+    }
+
+    function redrawSauceCanvas() {
+      sauceCtx.clearRect(0, 0, sauceCanvas.width, sauceCanvas.height);
+      state.sauces.forEach((s) => {
+        drawSauceStroke(s.points, s.color);
+      });
+    }
+
+    /* =========================================================
+       9. SIDES PLACEMENT
+       ========================================================= */
+    const placedSideLayer = document.getElementById('placed-side-layer');
+    const bentoCard = document.getElementById('bento-card');
+
+    function placeSide(sideData) {
+      state.side = { id: sideData.id, name: sideData.name, price: sideData.price };
+
+      // Spin card away
+      bentoCard.classList.add('spun-away');
+
+      // Dim all shelf sides except active
+      document.querySelectorAll('.side-item').forEach((item) => item.classList.remove('dimmed'));
+      const activeShelf = document.getElementById(`side-${sideData.id}`);
+      if (activeShelf) activeShelf.classList.add('dimmed');
+
+      // Render placed side
+      placedSideLayer.innerHTML = '';
+      const placed = document.createElement('div');
+      placed.className = 'bento-side-placed';
+
+      const sprite = document.createElement('div');
+      sprite.style.filter = 'drop-shadow(0 10px 10px rgba(0,0,0,.35))';
+      applySprite(sprite, URLS.sd, sideData.box, sideComp.clientWidth * 0.85, sideComp.clientHeight * 0.85);
+      placed.appendChild(sprite);
+
+      placedSideLayer.appendChild(placed);
+    }
+
+    /* =========================================================
+       10. TOP IT OFF GARNISH RAIN & RECEIPT
+       ========================================================= */
+    const topItOffBtn = document.getElementById('top-it-off-btn');
+    const garnishContainer = document.getElementById('garnish-container');
+    const receiptWrap = document.getElementById('receipt-wrap');
+
+    topItOffBtn.addEventListener('click', () => {
+      if (!state.hasRice || state.piles.length === 0) return;
+      saveUndoState();
+      state.isTopped = true;
+
+      showToast("One very good bowl.");
+      createGarnishRain();
+
+      // Slide in receipt after 650ms
+      setTimeout(() => {
+        state.isReceiptOpen = true;
+        receiptWrap.classList.add('active');
+        printReceiptLines();
+      }, 650);
+    });
+
+    function createGarnishRain() {
+      garnishContainer.innerHTML = '';
+      const bowlW = bowlComp.clientWidth;
+      const bowlH = bowlComp.clientHeight;
+      const cx = 0.5 * bowlW;
+      const cy = 0.375 * bowlH;
+      const rx = 0.40 * bowlW;
+      const ry = 0.28 * bowlH;
+
+      for (let i = 0; i < 90; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'garnish-piece';
+
+        // Random position inside rice ellipse
+        const angle = Math.random() * Math.PI * 2;
+        const rad = Math.sqrt(Math.random()) * 0.95;
+        const targetX = cx + Math.cos(angle) * rx * rad;
+        const targetY = cy + Math.sin(angle) * ry * rad;
+
+        piece.style.left = `${targetX}px`;
+        piece.style.top = `${targetY}px`;
+        piece.style.setProperty('--rot', `${Math.random() * 360}deg`);
+        piece.style.animationDelay = `${Math.random() * 250}ms`;
+
+        // 3 Garnish types: Sesame seeds, Nori strips, Scallions
+        const type = Math.random();
+        if (type < 0.45) {
+          // Sesame seed (cream dot)
+          piece.style.width = '3px';
+          piece.style.height = '4px';
+          piece.style.borderRadius = '50%';
+          piece.style.backgroundColor = '#fff8f0';
+          piece.style.boxShadow = '0 1px 1px rgba(0,0,0,0.3)';
+        } else if (type < 0.75) {
+          // Nori strip (dark green-black)
+          piece.style.width = '10px';
+          piece.style.height = '3px';
+          piece.style.backgroundColor = '#18291f';
+        } else {
+          // Scallion dot (green ring)
+          piece.style.width = '6px';
+          piece.style.height = '6px';
+          piece.style.borderRadius = '50%';
+          piece.style.backgroundColor = Math.random() > 0.5 ? '#5ba353' : '#88cc66';
+          piece.style.border = '1px solid #3d6e37';
+        }
+
+        garnishContainer.appendChild(piece);
+      }
+    }
+
+    /* Print Receipt Line by Line */
+    const receiptItems = document.getElementById('receipt-items');
+    function printReceiptLines() {
+      receiptItems.innerHTML = '';
+      const lines = [];
+
+      if (state.hasRice) {
+        lines.push({ name: 'Sushi rice (base)', price: '$8.00' });
+      }
+
+      state.piles.forEach((p) => {
+        lines.push({ name: p.name, price: `+$${p.price.toFixed(2)}` });
+      });
+
+      state.sauces.forEach((s) => {
+        lines.push({ name: `${s.name} sauce`, price: 'ON US' });
+      });
+
+      if (state.side) {
+        lines.push({ name: state.side.name, price: `$${state.side.price.toFixed(2)}` });
+      }
+
+      lines.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.className = 'receipt-row';
+        row.innerHTML = `<span>${item.name}</span><span>${item.price}</span>`;
+        receiptItems.appendChild(row);
+
+        setTimeout(() => {
+          row.classList.add('visible');
+        }, index * 110);
+      });
+
+      updateReceiptTotals();
+    }
+
+    function updateReceiptTotals() {
+      let subtotal = 0;
+      if (state.hasRice) subtotal += 8.00;
+      state.piles.forEach((p) => subtotal += p.price);
+      if (state.side) subtotal += state.side.price;
+
+      const isDelivery = document.querySelector('input[name="order-mode"]:checked')?.value === 'delivery';
+      const total = subtotal + (isDelivery ? 4.00 : 0.00);
+
+      document.getElementById('receipt-final-total').innerText = total.toFixed(2);
+      document.getElementById('modal-final-total').innerText = total.toFixed(2);
+    }
+
+    document.querySelectorAll('input[name="order-mode"]').forEach((radio) => {
+      radio.addEventListener('change', (e) => {
+        state.orderMode = e.target.value;
+        const locLabel = document.getElementById('loc-select-label');
+        const locSelect = document.getElementById('cust-location');
+        if (e.target.value === 'delivery') {
+          locLabel.innerText = 'Deliver to';
+          locSelect.innerHTML = `
+            <option value="addr1">540 Howard St, Apt 4B (Home)</option>
+            <option value="addr2">101 California St, Suite 1800 (Office)</option>
+          `;
+        } else {
+          locLabel.innerText = 'Pick up at';
+          locSelect.innerHTML = `
+            <option value="loc1">Poke Pal — Downtown (842 Market St)</option>
+            <option value="loc2">Poke Pal — Marina (2104 Chestnut St)</option>
+          `;
+        }
+        updateReceiptTotals();
+      });
+    });
+
+    // Back to building button on receipt
+    document.getElementById('receipt-back-btn').addEventListener('click', () => {
+      receiptWrap.classList.remove('active');
+      state.isReceiptOpen = false;
+      state.isTopped = false;
+      garnishContainer.innerHTML = '';
+    });
+
+    /* =========================================================
+       11. CHECKOUT MODAL & ORDER PLACEMENT
+       ========================================================= */
+    const modalCheckout = document.getElementById('modal-checkout');
+    const checkoutBtn = document.getElementById('receipt-checkout-btn');
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    const checkoutFormContent = document.getElementById('checkout-form-content');
+    const checkoutSuccessContent = document.getElementById('checkout-success-content');
+    const resetBuilderBtn = document.getElementById('reset-builder-btn');
+
+    checkoutBtn.addEventListener('click', () => {
+      modalCheckout.classList.add('show');
+    });
+
+    placeOrderBtn.addEventListener('click', () => {
+      checkoutFormContent.style.display = 'none';
+      checkoutSuccessContent.style.display = 'block';
+    });
+
+    resetBuilderBtn.addEventListener('click', () => {
+      modalCheckout.classList.remove('show');
+      checkoutFormContent.style.display = 'block';
+      checkoutSuccessContent.style.display = 'none';
+      resetBuilderFull();
+    });
+
+    function resetBuilderFull() {
+      state = {
+        hasRice: false,
+        piles: [],
+        sauces: [],
+        side: null,
+        isTopped: false,
+        isReceiptOpen: false,
+        orderMode: 'pickup'
+      };
+      undoStack = [];
+      renderAllFromState();
+      receiptWrap.classList.remove('active');
+      garnishContainer.innerHTML = '';
+      showToast("Start fresh! Grab some sushi rice.");
+    }
+
+    /* =========================================================
+       12. TOTAL CALCULATION & UI STEP REFRESH
+       ========================================================= */
+    function updateUI() {
+      // Calculate Total
+      let total = 0;
+      if (state.hasRice) total += 8.00;
+      state.piles.forEach((p) => total += p.price);
+      if (state.side) total += state.side.price;
+
+      // Animate counting total
+      animateTotal(total);
+
+      // Step States
+      const step1 = document.getElementById('step-1');
+      const step2 = document.getElementById('step-2');
+      const step3 = document.getElementById('step-3');
+      const step4 = document.getElementById('step-4');
+
+      const hasProteins = state.piles.some((p) => p.price === 3.00);
+      const hasOtherToppings = state.piles.some((p) => p.price < 3.00);
+      const hasSauce = state.sauces.length > 0;
+
+      // Reset
+      [step1, step2, step3, step4].forEach((s) => s.className = 'step-item');
+
+      if (state.hasRice) step1.classList.add('done');
+      if (hasProteins) step2.classList.add('done');
+      if (hasOtherToppings) step3.classList.add('done');
+      if (hasSauce) step4.classList.add('done');
+
+      // Active state
+      if (!state.hasRice) step1.classList.add('active');
+      else if (!hasProteins) step2.classList.add('active');
+      else if (!hasOtherToppings) step3.classList.add('active');
+      else if (!hasSauce) step4.classList.add('active');
+      else step4.classList.add('active');
+
+      // Top it off button state
+      const topBtn = document.getElementById('top-it-off-btn');
+      if (state.hasRice && state.piles.length >= 1) {
+        topBtn.classList.add('enabled');
+      } else {
+        topBtn.classList.remove('enabled');
+      }
+    }
+
+    let currentDisplayedTotal = 0;
+    function animateTotal(target) {
+      const el = document.getElementById('live-total');
+      const start = currentDisplayedTotal;
+      const startTime = performance.now();
+      const duration = 450;
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const val = start + (target - start) * progress;
+        el.innerText = val.toFixed(2);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          currentDisplayedTotal = target;
+          el.innerText = target.toFixed(2);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function updateTagStatus(id, isUsed) {
+      const tag = document.getElementById(`tag-${id}`);
+      if (tag) {
+        tag.classList.toggle('used', isUsed);
+      }
+    }
+
+    function renderAllFromState() {
+      // Rice
+      document.getElementById('bowl-rice').style.opacity = state.hasRice ? '1' : '0';
+      updateTagStatus('rice', state.hasRice);
+
+      // Toppings
+      renderPiles();
+      INGREDIENTS.forEach((ing) => {
+        if (!ing.isBase) {
+          const used = state.piles.some((p) => p.id === ing.id);
+          updateTagStatus(ing.id, used);
+        }
+      });
+
+      // Sauces
+      redrawSauceCanvas();
+      BOTTLES.forEach((bt) => {
+        const used = state.sauces.some((s) => s.id === bt.id);
+        const tag = document.getElementById(`bottle-tag-${bt.id}`);
+        if (tag) tag.classList.toggle('used', used);
+      });
+
+      // Sides
+      if (state.side) {
+        const sideData = SIDES.find((s) => s.id === state.side.id);
+        if (sideData) placeSide(sideData);
+      } else {
+        bentoCard.classList.remove('spun-away');
+        placedSideLayer.innerHTML = '';
+        document.querySelectorAll('.side-item').forEach((item) => item.classList.remove('dimmed'));
+      }
+
+      updateUI();
+    }
+
+    // Startup
+    window.addEventListener('DOMContentLoaded', () => {
+      initSprites();
+    });
+  </script>
+</body>
+</html>
