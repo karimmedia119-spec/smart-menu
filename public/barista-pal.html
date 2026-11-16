@@ -1096,31 +1096,147 @@
       box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
     }
 
-    .btn-add-custom-drink {
-      position: absolute;
-      left: calc(3.5 * var(--u));
-      top: calc(47.5 * var(--u));
-      height: calc(3.2 * var(--u));
-      padding: 0 calc(1.2 * var(--u));
-      background: #fff9f2;
-      border: 2px dashed var(--amber);
-      border-radius: calc(0.9 * var(--u));
-      color: var(--coffee);
-      font-family: 'Fredoka', sans-serif;
-      font-size: calc(0.85 * var(--u));
-      font-weight: 700;
+    /* Enhanced Navigation Band & Smart Menu Bar */
+    .band-left {
       display: flex;
       align-items: center;
-      gap: calc(0.4 * var(--u));
-      cursor: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: all 0.2s;
-      z-index: 45;
+      gap: calc(0.8 * var(--u));
     }
-    .btn-add-custom-drink:hover {
-      background: var(--amber);
+    .band-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--coffee);
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      padding: calc(0.3 * var(--u)) calc(0.8 * var(--u));
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+      border: 1.5px solid var(--amber);
+      transition: all 0.2s ease;
+      cursor: pointer !important;
+    }
+    .band-nav-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.35);
+    }
+    .band-nav-btn.food-btn {
+      background: #fde2dc;
+      color: #92400e;
+      border-color: #f2766a;
+    }
+    .band-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .band-title-badge {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.15 * var(--u));
       color: #fff;
-      transform: scale(1.04);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      letter-spacing: 0.5px;
+    }
+    .band-sub-badge {
+      font-size: calc(0.65 * var(--u));
+      font-weight: 700;
+      color: var(--amber-l);
+    }
+    .band-right {
+      display: flex;
+      align-items: center;
+      gap: calc(0.7 * var(--u));
+    }
+    .band-custom-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.3 * var(--u));
+      background: #fde68a;
+      color: #78350f;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 800;
+      padding: calc(0.3 * var(--u)) calc(0.9 * var(--u));
+      border-radius: 999px;
+      border: 1.5px solid #d97706;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+      cursor: pointer !important;
+      animation: pulseGlow 2s infinite ease-in-out;
+      transition: all 0.2s;
+    }
+    .band-custom-btn:hover {
+      background: #fbbf24;
+      transform: scale(1.05);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(217, 119, 6, 0); }
+    }
+
+    /* Prominent Add Custom Item Button in Bottom Bar */
+    .btn-bar-add-custom {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      border: 2px dashed #d97706;
+      border-radius: 999px;
+      padding: calc(0.35 * var(--u)) calc(1 * var(--u));
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 800;
+      cursor: pointer !important;
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.3 * var(--u));
+      box-shadow: 0 3px 8px rgba(217,119,6,0.25);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-bar-add-custom:hover {
+      background: #fbbf24;
+      color: #78350f;
+      transform: scale(1.05);
+    }
+
+    /* Modal Cursor & Clickable Rules */
+    #modal-custom-drink, #modal-checkout {
+      cursor: default !important;
+    }
+    #modal-custom-drink *, #modal-checkout * {
+      cursor: auto !important;
+    }
+    #modal-custom-drink input, #modal-checkout input, #modal-checkout select {
+      cursor: text !important;
+    }
+    #modal-custom-drink button, #modal-checkout button, #modal-checkout a, .band-nav-btn, .band-custom-btn, .btn-bar-add-custom {
+      cursor: pointer !important;
+    }
+
+    /* Quick Chips Inside Modal */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: calc(0.4 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+    }
+    .quick-chip {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: calc(0.5 * var(--u));
+      padding: calc(0.25 * var(--u)) calc(0.5 * var(--u));
+      font-size: calc(0.75 * var(--u));
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer !important;
+      transition: all 0.15s ease;
+    }
+    .quick-chip:hover {
+      background: #fde68a;
+      border-color: #d97706;
+      color: #92400e;
+      transform: translateY(-1px);
     }
 
     #modal-custom-drink {
@@ -1255,16 +1371,32 @@
 
     <!-- Top Nav Band -->
     <header id="band">
-      <nav class="nav-links">
-        <a href="#specialty" class="nav-link active-link">Specialty Drinks</a>
-        <a href="#iced" class="nav-link">Iced Coffee</a>
-        <a href="#matcha" class="nav-link">Matcha & Tea</a>
-        <a href="#bakery" class="nav-link">Bakery</a>
-      </nav>
+      <div class="band-left">
+        <a href="/" class="band-nav-btn home-btn" title="العودة لقائمة الطعام الكاملة">
+          <span>🍽️</span>
+          <span>المنيو الكامل (Smart Menu)</span>
+        </a>
+        <a href="/poke-pal.html" class="band-nav-btn food-btn" title="الانتقال لصانع أطباق الطعام والبوكيه">
+          <span>🥗</span>
+          <span>صانع الأطباق (Poke Pal)</span>
+        </a>
+      </div>
 
-      <a href="/poke-pal.html" class="switch-mode-btn">
-        <span>🥗 Switch to Poke & Food Builder</span>
-      </a>
+      <div class="band-center">
+        <span class="band-title-badge">☕ بار المشروبات والقهوة المختصة</span>
+        <span class="band-sub-badge">صمّم مشروبك المفضل مع تحكم كامل بالثلج، الحليب، والسيرب</span>
+      </div>
+
+      <div class="band-right">
+        <button id="btn-header-custom-drink" class="band-custom-btn" type="button">
+          <span>➕</span>
+          <span>إضافة نكهة / سيرب</span>
+        </button>
+
+        <a href="/poke-pal.html" class="switch-mode-btn">
+          <span>🥗 صانع أطباق البوكيه</span>
+        </a>
+      </div>
     </header>
 
     <!-- Logo & Subtitle -->
@@ -1369,32 +1501,39 @@
         <div class="steps-list">
           <div id="step-1" class="step-item active">
             <span class="step-num">1</span>
-            <span>Ice & Size</span>
+            <span>🧊 الثلج (Ice)</span>
           </div>
           <div id="step-2" class="step-item">
             <span class="step-num">2</span>
-            <span>Espresso Base</span>
+            <span>☕ القهوة (Base)</span>
           </div>
           <div id="step-3" class="step-item">
             <span class="step-num">3</span>
-            <span>Milk Choice</span>
+            <span>🥛 الحليب (Milk)</span>
           </div>
           <div id="step-4" class="step-item">
             <span class="step-num">4</span>
-            <span>Syrup & Cream</span>
+            <span>🍯 النكهات (Syrup)</span>
           </div>
         </div>
 
+        <!-- Prominent Add Custom Flavor Button -->
+        <button id="btn-bar-add-custom-drink" class="btn-bar-add-custom" type="button">
+          <span>➕</span>
+          <span>إضافة نكهة مخصصة</span>
+        </button>
+
         <div class="bar-total-wrap">
           $<span id="live-total">0.00</span>
+          <span style="font-size:calc(0.7*var(--u));opacity:0.8;margin-left:4px;">(<span id="egp-total">0</span> ج.م)</span>
         </div>
 
         <button id="brew-finish-btn" class="brew-finish-btn" type="button">
-          Brew it ↗
+          إرسال للبار ↗
         </button>
 
         <button id="undo-btn" class="undo-btn" type="button">
-          ↺ Undo
+          ↺ تراجع
         </button>
       </div>
 
@@ -1506,16 +1645,31 @@
     <div id="modal-custom-drink">
       <div class="custom-modal-card">
         <h3 class="custom-modal-title">☕ إضافة نكهة أو مكون مخصص للمشروب</h3>
-        <p class="custom-modal-p">أدخل اسم النكهة أو الإضافة التي ترغب بها (مثال: سيروب لافندر، رشة زعفران، كرات بوبا، حليب جوز هند):</p>
+        <p class="custom-modal-p">أدخل اسم النكهة أو الإضافة التي ترغب بها أو اختر من النكهات المقترحة:</p>
         
-        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">اسم المكون الإضافي:</label>
-        <input type="text" id="custom-drink-name" class="custom-modal-input" placeholder="مثال: شراب لافندر فرنسي، كرات بوبا التابيوكا...">
+        <!-- Quick Syrups Chips -->
+        <div style="margin-bottom:calc(0.6*var(--u));">
+          <span style="font-size:calc(0.75*var(--u));font-weight:700;color:var(--amber-d);display:block;margin-bottom:4px;">نكهات وإضافات باريستا مميزة (انقر للاختيار المباشر):</span>
+          <div class="chips-grid">
+            <button type="button" class="quick-chip" data-name="سيرب كراميل مملح" data-price="1.00">🍯 كراميل مملح (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="سيرب بندق فرنسي" data-price="1.00">🌰 بندق فرنسي (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="سيرب لافندر عطري" data-price="1.50">🌿 سيرب لافندر (+$1.50)</button>
+            <button type="button" class="quick-chip" data-name="صوص شوكولاتة بلجيكية" data-price="1.50">🍫 شوكولاتة بلجيكية (+$1.50)</button>
+            <button type="button" class="quick-chip" data-name="حليب شوفان باريستا" data-price="1.00">🥛 حليب شوفان (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="حليب لوز عضوي" data-price="1.00">🥛 حليب لوز (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="فتات بسكويت لوتس" data-price="1.00">🍪 بسكويت لوتس (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="كرات بوبا التابيوكا" data-price="1.50">🧋 كرات بوبا (+$1.50)</button>
+          </div>
+        </div>
+
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">أو اكتب اسم المكون الإضافي:</label>
+        <input type="text" id="custom-drink-name" class="custom-modal-input" placeholder="مثال: رشة زعفران فاخر، سيرب توت أزرق...">
         
-        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">السعر الإضافي ($):</label>
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">السعر الإضافي ($ دولار):</label>
         <input type="number" id="custom-drink-price" class="custom-modal-input" placeholder="0.00" value="1.00" step="0.25">
         
         <div class="custom-modal-buttons">
-          <button type="button" id="btn-custom-drink-cancel" class="btn-custom-cancel">إلغاء</button>
+          <button type="button" id="btn-custom-drink-cancel" class="btn-custom-cancel">إلغاء ✖</button>
           <button type="button" id="btn-custom-drink-save" class="btn-custom-save">إضافة للمشروب الآن ✨</button>
         </div>
       </div>
@@ -2294,15 +2448,31 @@
 
     const modalCustomDrink = document.getElementById('modal-custom-drink');
     const btnAddCustomDrink = document.getElementById('btn-add-custom-drink');
+    const btnBarAddCustomDrink = document.getElementById('btn-bar-add-custom-drink');
+    const btnHeaderCustomDrink = document.getElementById('btn-header-custom-drink');
     const btnCustomDrinkCancel = document.getElementById('btn-custom-drink-cancel');
     const btnCustomDrinkSave = document.getElementById('btn-custom-drink-save');
 
-    if (btnAddCustomDrink) {
-      btnAddCustomDrink.addEventListener('click', () => {
-        modalCustomDrink.classList.add('show');
-        document.getElementById('custom-drink-name').focus();
-      });
+    function openCustomDrinkModal() {
+      if (!modalCustomDrink) return;
+      modalCustomDrink.classList.add('show');
+      const input = document.getElementById('custom-drink-name');
+      if (input) input.focus();
     }
+
+    if (btnAddCustomDrink) btnAddCustomDrink.addEventListener('click', openCustomDrinkModal);
+    if (btnBarAddCustomDrink) btnBarAddCustomDrink.addEventListener('click', openCustomDrinkModal);
+    if (btnHeaderCustomDrink) btnHeaderCustomDrink.addEventListener('click', openCustomDrinkModal);
+
+    // Quick chips
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const name = chip.getAttribute('data-name');
+        const price = chip.getAttribute('data-price');
+        if (name) document.getElementById('custom-drink-name').value = name;
+        if (price) document.getElementById('custom-drink-price').value = price;
+      });
+    });
 
     if (btnCustomDrinkCancel) {
       btnCustomDrinkCancel.addEventListener('click', () => {
@@ -2335,6 +2505,7 @@
         milk: null,
         hasCream: false,
         syrups: [],
+        customDrinkItems: [],
         pastry: null,
         isReceiptOpen: false,
         orderMode: 'dine_in'
@@ -2353,9 +2524,15 @@
       if (state.milk) total += state.milk.price;
       if (state.hasCream) total += 0.75;
       state.syrups.forEach(() => total += 0.75);
+      if (state.customDrinkItems) {
+        state.customDrinkItems.forEach(c => total += c.price);
+      }
       if (state.pastry) total += state.pastry.price;
 
-      document.getElementById('live-total').innerText = total.toFixed(2);
+      const liveTotalEl = document.getElementById('live-total');
+      if (liveTotalEl) liveTotalEl.innerText = total.toFixed(2);
+      const egpEl = document.getElementById('egp-total');
+      if (egpEl) egpEl.innerText = Math.round(total * 50).toString();
 
       // Steps indicator
       const s1 = document.getElementById('step-1');

@@ -1086,32 +1086,150 @@
       color: #fff;
     }
 
-    /* Custom Ingredient Floating Button & Modal */
-    .btn-add-custom-ing {
-      position: absolute;
-      left: calc(3.5 * var(--u));
-      top: calc(47.5 * var(--u));
-      height: calc(3.2 * var(--u));
-      padding: 0 calc(1.2 * var(--u));
-      background: #fff;
-      border: 2px dashed var(--coral);
-      border-radius: calc(0.9 * var(--u));
-      color: var(--coral-d);
-      font-family: 'Fredoka', sans-serif;
-      font-size: calc(0.85 * var(--u));
-      font-weight: 700;
+    /* Enhanced Navigation Band & Smart Menu Bar */
+    .band-left {
       display: flex;
       align-items: center;
-      gap: calc(0.4 * var(--u));
-      cursor: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-      transition: all 0.2s;
-      z-index: 35;
+      gap: calc(0.8 * var(--u));
     }
-    .btn-add-custom-ing:hover {
-      background: var(--coral);
+    .band-nav-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      background: rgba(255, 255, 255, 0.95);
+      color: var(--teal-d);
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      padding: calc(0.3 * var(--u)) calc(0.8 * var(--u));
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+      border: 1.5px solid var(--teal-d);
+      transition: all 0.2s ease;
+      cursor: pointer !important;
+    }
+    .band-nav-btn:hover {
+      background: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .band-nav-btn.coffee-btn {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: #d97706;
+    }
+    .band-nav-btn.coffee-btn:hover {
+      background: #fde68a;
+    }
+    .band-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .band-title-badge {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.15 * var(--u));
       color: #fff;
-      transform: scale(1.04);
+      text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+      letter-spacing: 0.5px;
+    }
+    .band-sub-badge {
+      font-size: calc(0.65 * var(--u));
+      font-weight: 700;
+      color: var(--teal-l);
+    }
+    .band-right {
+      display: flex;
+      align-items: center;
+      gap: calc(0.7 * var(--u));
+    }
+    .band-custom-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.3 * var(--u));
+      background: #fde68a;
+      color: #78350f;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 800;
+      padding: calc(0.3 * var(--u)) calc(0.9 * var(--u));
+      border-radius: 999px;
+      border: 1.5px solid #d97706;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.4);
+      cursor: pointer !important;
+      animation: pulseGlow 2s infinite ease-in-out;
+      transition: all 0.2s;
+    }
+    .band-custom-btn:hover {
+      background: #fbbf24;
+      transform: scale(1.05);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(217, 119, 6, 0.4); }
+      50% { box-shadow: 0 0 0 6px rgba(217, 119, 6, 0); }
+    }
+
+    /* Prominent Add Custom Item Button in Bottom Bar */
+    .btn-bar-add-custom {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+      border: 2px dashed #d97706;
+      border-radius: 999px;
+      padding: calc(0.35 * var(--u)) calc(1 * var(--u));
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 800;
+      cursor: pointer !important;
+      display: inline-flex;
+      align-items: center;
+      gap: calc(0.3 * var(--u));
+      box-shadow: 0 3px 8px rgba(217,119,6,0.25);
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-bar-add-custom:hover {
+      background: #fbbf24;
+      color: #78350f;
+      transform: scale(1.05);
+    }
+
+    /* Modal Cursor & Clickable Rules */
+    #modal-custom-ing, #modal-checkout {
+      cursor: default !important;
+    }
+    #modal-custom-ing *, #modal-checkout * {
+      cursor: auto !important;
+    }
+    #modal-custom-ing input, #modal-checkout input, #modal-checkout select {
+      cursor: text !important;
+    }
+    #modal-custom-ing button, #modal-checkout button, #modal-checkout a, .band-nav-btn, .band-custom-btn, .btn-bar-add-custom {
+      cursor: pointer !important;
+    }
+
+    /* Quick Chips Inside Modal */
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: calc(0.4 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+    }
+    .quick-chip {
+      background: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: calc(0.5 * var(--u));
+      padding: calc(0.25 * var(--u)) calc(0.5 * var(--u));
+      font-size: calc(0.75 * var(--u));
+      font-weight: 600;
+      color: #374151;
+      cursor: pointer !important;
+      transition: all 0.15s ease;
+    }
+    .quick-chip:hover {
+      background: #fde68a;
+      border-color: #d97706;
+      color: #92400e;
+      transform: translateY(-1px);
     }
 
     #modal-custom-ing {
@@ -1225,27 +1343,42 @@
 
     <!-- Top Nav Band -->
     <header id="band">
-      <nav class="nav-links">
-        <a href="#menu" class="nav-link">Menu</a>
-        <a href="#build" class="nav-link">Build Your Poke Bowl</a>
-        <a href="#bowls" class="nav-link">Bowls</a>
-        <a href="#sides" class="nav-link">Sides</a>
-        <a href="#drinks" class="nav-link">Drinks</a>
-        <a href="#help" class="nav-link">Help</a>
-      </nav>
+      <div class="band-left">
+        <a href="/" class="band-nav-btn home-btn" title="العودة لقائمة الطعام الكاملة">
+          <span>🍽️</span>
+          <span>المنيو الكامل (Smart Menu)</span>
+        </a>
+        <a href="/barista-pal.html" class="band-nav-btn coffee-btn" title="الانتقال لصانع مشروبات الكافيه">
+          <span>☕</span>
+          <span>بار المشروبات (Barista Pal)</span>
+        </a>
+      </div>
 
-      <button id="how-btn" class="how-it-works-btn" type="button">
-        <span>How it works</span>
-        <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;">?</span>
-      </button>
+      <div class="band-center">
+        <span class="band-title-badge">🥗 صانع أطباق البوكيه التفاعلي</span>
+        <span class="band-sub-badge">اسحب المكونات أو أضف مكونك الخاص مباشرة</span>
+      </div>
+
+      <div class="band-right">
+        <button id="btn-header-add-custom" class="band-custom-btn" type="button">
+          <span>➕</span>
+          <span>إضافة مكون مخصص</span>
+        </button>
+
+        <button id="how-btn" class="how-it-works-btn" type="button">
+          <span>طريقة الاستخدام</span>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;">?</span>
+        </button>
+      </div>
 
       <!-- How it works Popover -->
       <div id="how-popover">
-        <h4>How to build:</h4>
-        <ol>
-          <li>Grab rice, then your toppings.</li>
-          <li>Pick up a bottle and drizzle.</li>
-          <li>Drop in a side, top it off, check out.</li>
+        <h4 style="margin:0 0 6px 0;font-size:13px;color:var(--teal-d);direction:rtl;text-align:right;">طريقة بناء طبقك المميز:</h4>
+        <ol style="margin:0;padding-right:18px;direction:rtl;text-align:right;font-size:12px;color:#333;">
+          <li>اسحب الأرز أولاً ثم اسحب البروتين والخضروات المفضلة.</li>
+          <li>التقط زجاجة الصوص ومررها فوق الوعاء لرسم الصوص.</li>
+          <li>يمكنك إضافة أي مكون غير موجود عبر زر <b>"إضافة مكون مخصص"</b>!</li>
+          <li>أضف مقبلات بالقسم الجانبي واضغط <b>"إتمام الطلب"</b> لإرساله فوراً للمطبخ!</li>
         </ol>
       </div>
     </header>
@@ -1328,32 +1461,39 @@
         <div class="steps-list">
           <div id="step-1" class="step-item active">
             <span class="step-num">1</span>
-            <span>Choose base</span>
+            <span>🍚 الأرز (Base)</span>
           </div>
           <div id="step-2" class="step-item">
             <span class="step-num">2</span>
-            <span>Add proteins</span>
+            <span>🐟 بروتين (Protein)</span>
           </div>
           <div id="step-3" class="step-item">
             <span class="step-num">3</span>
-            <span>Pick toppings</span>
+            <span>🥑 خضار (Toppings)</span>
           </div>
           <div id="step-4" class="step-item">
             <span class="step-num">4</span>
-            <span>Select sauce</span>
+            <span>🍶 صوص (Sauce)</span>
           </div>
         </div>
 
+        <!-- Prominent Add Custom Item Button -->
+        <button id="btn-bar-add-custom" class="btn-bar-add-custom" type="button">
+          <span>➕</span>
+          <span>إضافة مكون مخصص</span>
+        </button>
+
         <div class="bar-total-wrap">
           $<span id="live-total">0.00</span>
+          <span style="font-size:calc(0.7*var(--u));opacity:0.8;margin-left:4px;">(<span id="egp-total">0</span> ج.م)</span>
         </div>
 
         <button id="top-it-off-btn" class="top-it-off-btn" type="button">
-          Top it off ↗
+          إتمام الطلب ↗
         </button>
 
         <button id="undo-btn" class="undo-btn" type="button">
-          ↺ Undo
+          ↺ تراجع
         </button>
       </div>
 
@@ -1464,18 +1604,32 @@
     <!-- Modal for adding custom ingredient dynamically -->
     <div id="modal-custom-ing">
       <div class="custom-modal-card">
-        <h3 class="custom-modal-title">➕ إضافة مكون / صنف مخصص</h3>
-        <p class="custom-modal-p">أدخل اسم أي مكون ترغب بإضافته وسيظهر فوراً في أوعية الشيف التفاعلية وعلى الإيصال الحراري:</p>
+        <h3 class="custom-modal-title">➕ إضافة مكون أو صنف مخصص</h3>
+        <p class="custom-modal-p">أدخل اسم أي مكون ترغب به أو اختر من المقترحات السريعة، وسيظهر فوراً في طبقك التفاعلي وعلى الفاتورة وشاشة المطبخ:</p>
         
-        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">اسم المكون (عربي أو إنجليزي):</label>
-        <input type="text" id="custom-ing-name" class="custom-modal-input" placeholder="مثال: دجاج ترياكي، بيض مسلوق، فطر، فلافل، رمان...">
+        <!-- Quick Common Chips -->
+        <div style="margin-bottom:calc(0.6*var(--u));">
+          <span style="font-size:calc(0.75*var(--u));font-weight:700;color:var(--teal-d);display:block;margin-bottom:4px;">مكونات وإضافات شائعة (انقر للاختيار المباشر):</span>
+          <div class="chips-grid">
+            <button type="button" class="quick-chip" data-name="دجاج ترياكي مشوي" data-price="3.50">🍗 دجاج ترياكي (+$3.50)</button>
+            <button type="button" class="quick-chip" data-name="جمبري تيمبورا كريسبي" data-price="4.50">🍤 جمبري كريسبي (+$4.50)</button>
+            <button type="button" class="quick-chip" data-name="جبن شيدر ذائب" data-price="2.00">🧀 جبن شيدر (+$2.00)</button>
+            <button type="button" class="quick-chip" data-name="ذرة حلوة مشوية" data-price="1.50">🌽 ذرة حلوة (+$1.50)</button>
+            <button type="button" class="quick-chip" data-name="فطر مشروم سوتيه" data-price="2.50">🍄 فطر مشروم (+$2.50)</button>
+            <button type="button" class="quick-chip" data-name="هالبينو صوص حار" data-price="1.00">🌶️ هالبينو حار (+$1.00)</button>
+            <button type="button" class="quick-chip" data-name="كاجو وسمسم محمص" data-price="1.50">🥜 مكسرات سمسم (+$1.50)</button>
+          </div>
+        </div>
+
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">أو اكتب اسم المكون المطلوب:</label>
+        <input type="text" id="custom-ing-name" class="custom-modal-input" placeholder="مثال: شاورما دجاج، بيض عيون، رمان، جبن حلوم...">
         
-        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">السعر الإضافي ($):</label>
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">السعر الإضافي ($ دولار):</label>
         <input type="number" id="custom-ing-price" class="custom-modal-input" placeholder="0.00" value="2.50" step="0.5">
         
         <div class="custom-modal-buttons">
-          <button type="button" id="btn-custom-cancel" class="btn-custom-cancel">إلغاء</button>
-          <button type="button" id="btn-custom-save" class="btn-custom-save">إضافة للوعاء الآن ✨</button>
+          <button type="button" id="btn-custom-cancel" class="btn-custom-cancel">إلغاء ✖</button>
+          <button type="button" id="btn-custom-save" class="btn-custom-save">إضافة للطبق الآن ✨</button>
         </div>
       </div>
     </div>
@@ -2442,15 +2596,31 @@
        ========================================================= */
     const modalCustomIng = document.getElementById('modal-custom-ing');
     const btnAddCustomIng = document.getElementById('btn-add-custom-ing');
+    const btnBarAddCustom = document.getElementById('btn-bar-add-custom');
+    const btnHeaderAddCustom = document.getElementById('btn-header-add-custom');
     const btnCustomCancel = document.getElementById('btn-custom-cancel');
     const btnCustomSave = document.getElementById('btn-custom-save');
 
-    if (btnAddCustomIng) {
-      btnAddCustomIng.addEventListener('click', () => {
-        modalCustomIng.classList.add('show');
-        document.getElementById('custom-ing-name').focus();
-      });
+    function openCustomModal() {
+      if (!modalCustomIng) return;
+      modalCustomIng.classList.add('show');
+      const input = document.getElementById('custom-ing-name');
+      if (input) input.focus();
     }
+
+    if (btnAddCustomIng) btnAddCustomIng.addEventListener('click', openCustomModal);
+    if (btnBarAddCustom) btnBarAddCustom.addEventListener('click', openCustomModal);
+    if (btnHeaderAddCustom) btnHeaderAddCustom.addEventListener('click', openCustomModal);
+
+    // Quick chips
+    document.querySelectorAll('.quick-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        const name = chip.getAttribute('data-name');
+        const price = chip.getAttribute('data-price');
+        if (name) document.getElementById('custom-ing-name').value = name;
+        if (price) document.getElementById('custom-ing-price').value = price;
+      });
+    });
 
     if (btnCustomCancel) {
       btnCustomCancel.addEventListener('click', () => {
@@ -2557,6 +2727,7 @@
     let currentDisplayedTotal = 0;
     function animateTotal(target) {
       const el = document.getElementById('live-total');
+      const egpEl = document.getElementById('egp-total');
       const start = currentDisplayedTotal;
       const startTime = performance.now();
       const duration = 450;
@@ -2565,12 +2736,14 @@
         const elapsed = now - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const val = start + (target - start) * progress;
-        el.innerText = val.toFixed(2);
+        if (el) el.innerText = val.toFixed(2);
+        if (egpEl) egpEl.innerText = Math.round(val * 50).toString();
         if (progress < 1) {
           requestAnimationFrame(step);
         } else {
           currentDisplayedTotal = target;
-          el.innerText = target.toFixed(2);
+          if (el) el.innerText = target.toFixed(2);
+          if (egpEl) egpEl.innerText = Math.round(target * 50).toString();
         }
       }
       requestAnimationFrame(step);
