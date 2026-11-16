@@ -185,9 +185,43 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       }
     } catch (e) {}
 
+    // Listen for storage events (e.g. from poke-pal.html or barista-pal.html)
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === `smart_menu_orders_${activeTenant.id}` && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setOrders(parsed);
+            playAlertSound("new_order");
+          }
+        } catch (err) {}
+      }
+    };
+
+    // Listen for direct window messages from interactive builders
+    const handleWindowMessage = (e: MessageEvent) => {
+      if (e.data && e.data.type === "SMART_MENU_NEW_ORDER" && e.data.order) {
+        const newOrder = e.data.order;
+        setOrders((prev) => {
+          if (prev.some((o) => o.id === newOrder.id)) return prev;
+          const updated = [newOrder, ...prev];
+          try {
+            localStorage.setItem(`smart_menu_orders_${activeTenant.id}`, JSON.stringify(updated));
+          } catch (err) {}
+          return updated;
+        });
+        playAlertSound("new_order");
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    window.addEventListener("message", handleWindowMessage);
+
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("message", handleWindowMessage);
     };
   }, [activeTenant.id]);
 

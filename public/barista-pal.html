@@ -1021,6 +1021,183 @@
       transform: translateY(-2px);
     }
 
+    /* Smart Menu Actions in Success Modal */
+    .smart-menu-actions {
+      display: flex;
+      flex-direction: column;
+      gap: calc(0.6 * var(--u));
+      margin-top: calc(1 * var(--u));
+    }
+
+    .btn-smart-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: calc(0.5 * var(--u));
+      padding: calc(0.6 * var(--u)) calc(1 * var(--u));
+      border-radius: calc(0.8 * var(--u));
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.9 * var(--u));
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.15s, opacity 0.15s;
+      cursor: pointer;
+    }
+    .btn-smart-action:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
+    }
+    .btn-track {
+      background: #d97706;
+      color: #fff;
+    }
+    .btn-kitchen {
+      background: #3b2219;
+      color: #fff;
+    }
+    .btn-pos {
+      background: #10b981;
+      color: #fff;
+    }
+
+    /* Top Drink Styles Bar & Custom Ingredient Button */
+    .drink-styles-bar {
+      position: absolute;
+      top: calc(4.2 * var(--u));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: calc(0.6 * var(--u));
+      background: rgba(20, 10, 5, 0.7);
+      padding: calc(0.4 * var(--u)) calc(0.8 * var(--u));
+      border-radius: 999px;
+      border: 1.5px solid rgba(217, 119, 6, 0.4);
+      backdrop-filter: blur(6px);
+      z-index: 50;
+    }
+
+    .style-pill {
+      background: transparent;
+      border: none;
+      color: #eedfd2;
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.8 * var(--u));
+      font-weight: 700;
+      padding: calc(0.3 * var(--u)) calc(0.8 * var(--u));
+      border-radius: 999px;
+      cursor: none;
+      transition: all 0.2s;
+    }
+
+    .style-pill:hover, .style-pill.active {
+      background: var(--amber);
+      color: #fff;
+      transform: scale(1.05);
+      box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4);
+    }
+
+    .btn-add-custom-drink {
+      position: absolute;
+      left: calc(3.5 * var(--u));
+      top: calc(47.5 * var(--u));
+      height: calc(3.2 * var(--u));
+      padding: 0 calc(1.2 * var(--u));
+      background: #fff9f2;
+      border: 2px dashed var(--amber);
+      border-radius: calc(0.9 * var(--u));
+      color: var(--coffee);
+      font-family: 'Fredoka', sans-serif;
+      font-size: calc(0.85 * var(--u));
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: calc(0.4 * var(--u));
+      cursor: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: all 0.2s;
+      z-index: 45;
+    }
+    .btn-add-custom-drink:hover {
+      background: var(--amber);
+      color: #fff;
+      transform: scale(1.04);
+    }
+
+    #modal-custom-drink {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 10, 5, 0.7);
+      backdrop-filter: blur(6px);
+      z-index: 220;
+      align-items: center;
+      justify-content: center;
+    }
+    #modal-custom-drink.show {
+      display: flex;
+    }
+    .custom-modal-card {
+      width: calc(32 * var(--u));
+      background: #fff8f0;
+      border: 3px solid var(--amber);
+      border-radius: calc(1.5 * var(--u));
+      padding: calc(1.8 * var(--u));
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      direction: rtl;
+      text-align: right;
+    }
+    .custom-modal-title {
+      font-family: 'Lilita One', cursive;
+      font-size: calc(1.8 * var(--u));
+      color: var(--coffee);
+      margin: 0 0 calc(0.4 * var(--u)) 0;
+    }
+    .custom-modal-p {
+      font-size: calc(0.85 * var(--u));
+      color: #555;
+      margin: 0 0 calc(1 * var(--u)) 0;
+    }
+    .custom-modal-input {
+      width: 100%;
+      padding: calc(0.6 * var(--u));
+      margin-bottom: calc(0.8 * var(--u));
+      border: 2px solid #ddd;
+      border-radius: calc(0.6 * var(--u));
+      font-size: calc(0.85 * var(--u));
+      box-sizing: border-box;
+      outline: none;
+      font-family: inherit;
+    }
+    .custom-modal-input:focus {
+      border-color: var(--amber);
+    }
+    .custom-modal-buttons {
+      display: flex;
+      gap: calc(0.6 * var(--u));
+      justify-content: flex-end;
+      margin-top: calc(0.6 * var(--u));
+    }
+    .btn-custom-save {
+      background: var(--amber);
+      color: #fff;
+      border: none;
+      padding: calc(0.5 * var(--u)) calc(1.2 * var(--u));
+      border-radius: calc(0.6 * var(--u));
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-custom-cancel {
+      background: #e2e8f0;
+      color: #333;
+      border: none;
+      padding: calc(0.5 * var(--u)) calc(1 * var(--u));
+      border-radius: calc(0.6 * var(--u));
+      font-weight: 700;
+      cursor: pointer;
+    }
+      transform: translateY(-2px);
+    }
+
     /* Order Success Box */
     .order-success-card {
       text-align: center;
@@ -1128,6 +1305,20 @@
 
     <!-- BUILDER CONTAINER -->
     <div id="builder">
+      <!-- Top Drink Style Bar (Hot, Iced, Matcha, Mojito, Shake) -->
+      <div id="drink-styles-bar" class="drink-styles-bar">
+        <button type="button" class="style-pill active" data-style="hot">☕ ساخن ولاتيه</button>
+        <button type="button" class="style-pill" data-style="iced">🧊 مثلج وكولد برو</button>
+        <button type="button" class="style-pill" data-style="matcha">🍵 ماتشا يابانية</button>
+        <button type="button" class="style-pill" data-style="mojito">🧋 موهيتو فوار</button>
+        <button type="button" class="style-pill" data-style="frappe">🥤 فرابيه وميلك شيك</button>
+      </div>
+
+      <!-- Add Custom Flavor / Ingredient Button -->
+      <button id="btn-add-custom-drink" class="btn-add-custom-drink" type="button">
+        ➕ إضافة نكهة أو مكون مخصص
+      </button>
+
       <!-- Left: Coffee Bases & Pitchers -->
       <div id="bases-container"></div>
 
@@ -1244,49 +1435,88 @@
       </div>
     </div>
 
-    <!-- Checkout Modal -->
+    <!-- Checkout Modal Connected to Smart Menu System -->
     <div id="modal-checkout">
       <div class="checkout-card">
         <div id="checkout-form-content">
-          <h2 class="checkout-title">Freshly crafted.<br>Ready in 3 mins.</h2>
+          <h2 class="checkout-title">Smart Menu Barista<br>إرسال المشروب للمطبخ والكاشير</h2>
 
           <div class="checkout-field">
-            <label>Customer Name</label>
-            <input type="text" id="cust-name" value="Emma Watson" required>
+            <label>اسم العميل (Customer Name):</label>
+            <input type="text" id="cust-name" value="عميل الصالة" placeholder="اسمك الكريم" required>
           </div>
 
           <div class="checkout-field">
-            <label>Table / Phone</label>
-            <input type="text" id="cust-phone" value="Table 4 (Outdoor Garden)" required>
+            <label>رقم الهاتف (Phone Number):</label>
+            <input type="tel" id="cust-phone" value="01000000000" placeholder="01xxxxxxxxx" required>
           </div>
 
           <div class="checkout-field">
-            <label id="loc-select-label">Service Mode</label>
+            <label id="loc-select-label">موقع الطلب (الطاولة / الاستلام):</label>
             <select id="cust-location">
-              <option value="bar1">Served at Table 4</option>
-              <option value="bar2">Pick up at Barista Counter</option>
+              <option value="طاولة 1">طاولة 1 - VIP الصالون الملكي</option>
+              <option value="طاولة 2">طاولة 2 - الصالة الداخلية</option>
+              <option value="طاولة 3">طاولة 3 - الصالة الداخلية</option>
+              <option value="طاولة 4" selected>طاولة 4 - الواجهة المطلة</option>
+              <option value="طاولة 5">طاولة 5 - الحديقة والتراس</option>
+              <option value="طاولة 6">طاولة 6 - الجناح العائلي</option>
+              <option value="طاولة 7">طاولة 7 - بار القهوة المختصة</option>
+              <option value="طاولة 8">طاولة 8 - الجلسة الهادئة</option>
+              <option value="سفري">استلام سفري (Takeaway Bar)</option>
+              <option value="دليفري">خدمة التوصيل السريع (Delivery)</option>
             </select>
           </div>
 
           <div class="checkout-total-row">
-            <span>Total:</span>
+            <span>الإجمالي المستحق:</span>
             <span>$<span id="modal-final-total">0.00</span></span>
           </div>
 
           <button id="place-order-btn" class="btn-place-order" type="button">
-            Send order to Barista ↗
+            تأكيد الطلب وإرساله للباريستا ↗
           </button>
         </div>
 
         <div id="checkout-success-content" class="order-success-card" style="display:none;">
           <div class="success-tick">☕</div>
-          <h2 class="checkout-title" style="margin-bottom:calc(0.5*var(--u));">Order #BP-8842</h2>
-          <p style="font-size:calc(1*var(--u));margin-bottom:calc(1.5*var(--u));font-weight:500;">
-            The barista is grinding and pulling your espresso now!
+          <h2 id="order-success-number" class="checkout-title" style="margin-bottom:calc(0.5*var(--u));">طلب رقم #205</h2>
+          <p style="font-size:calc(0.95*var(--u));margin-bottom:calc(1*var(--u));font-weight:600;color:var(--amber-d);">
+            تم إرسال مشروبك فوراً لشاشات البار والمطبخ ونقاط بيع الكاشير!
           </p>
-          <button id="reset-builder-btn" class="btn-place-order" type="button">
-            Craft another drink
-          </button>
+
+          <div class="smart-menu-actions">
+            <a id="link-track-order" href="/" class="btn-smart-action btn-track">
+              👀 تتبع حالة طلبك بالصالة مباشرة
+            </a>
+            <a href="/kitchen" target="_blank" class="btn-smart-action btn-kitchen">
+              👨‍🍳 عرض التذكرة في شاشة المطبخ والبار (KDS)
+            </a>
+            <a href="/cashier" target="_blank" class="btn-smart-action btn-pos">
+              🧾 عرض الفاتورة في نقطة البيع (POS)
+            </a>
+            <button id="reset-builder-btn" class="btn-smart-action" style="background:#fff;border:2px solid var(--amber);color:var(--amber);margin-top:calc(0.4*var(--u));" type="button">
+              ☕ تحضير مشروب جديد
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for adding custom drink ingredient dynamically -->
+    <div id="modal-custom-drink">
+      <div class="custom-modal-card">
+        <h3 class="custom-modal-title">☕ إضافة نكهة أو مكون مخصص للمشروب</h3>
+        <p class="custom-modal-p">أدخل اسم النكهة أو الإضافة التي ترغب بها (مثال: سيروب لافندر، رشة زعفران، كرات بوبا، حليب جوز هند):</p>
+        
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">اسم المكون الإضافي:</label>
+        <input type="text" id="custom-drink-name" class="custom-modal-input" placeholder="مثال: شراب لافندر فرنسي، كرات بوبا التابيوكا...">
+        
+        <label style="font-size:calc(0.8*var(--u));font-weight:700;display:block;margin-bottom:4px;">السعر الإضافي ($):</label>
+        <input type="number" id="custom-drink-price" class="custom-modal-input" placeholder="0.00" value="1.00" step="0.25">
+        
+        <div class="custom-modal-buttons">
+          <button type="button" id="btn-custom-drink-cancel" class="btn-custom-cancel">إلغاء</button>
+          <button type="button" id="btn-custom-drink-save" class="btn-custom-save">إضافة للمشروب الآن ✨</button>
         </div>
       </div>
     </div>
@@ -1943,6 +2173,83 @@
     });
 
     document.getElementById('place-order-btn').addEventListener('click', () => {
+      // 1. Gather custom drink details
+      let sub = 0;
+      if (state.base) sub += state.base.price;
+      if (state.milk) sub += state.milk.price;
+      if (state.hasCream) sub += 0.75;
+      state.syrups.forEach(() => sub += 0.75);
+      if (state.pastry) sub += state.pastry.price;
+      if (state.customDrinkItems) {
+        state.customDrinkItems.forEach(c => sub += c.price);
+      }
+
+      const isTakeaway = document.querySelector('input[name="order-mode"]:checked')?.value === 'takeaway';
+      const total = sub + (isTakeaway ? 2.50 : 0.00);
+
+      const custName = document.getElementById('cust-name').value || 'عميل الصالة';
+      const custPhone = document.getElementById('cust-phone').value || '';
+      const orderPoint = document.getElementById('cust-location').value || 'طاولة 4';
+      const orderNumber = Math.floor(200 + Math.random() * 800).toString();
+
+      // Modifiers list
+      const modifiers = [];
+      if (state.iceCount > 0) modifiers.push({ modifierName: 'مستوى الثلج', optionName: `${state.iceCount} مكعبات ثلج بلوري`, price: 0 });
+      if (state.base) modifiers.push({ modifierName: 'قاعدة المشروب', optionName: state.base.name, price: state.base.price });
+      if (state.milk) modifiers.push({ modifierName: 'نوع الحليب / السائل', optionName: state.milk.name, price: state.milk.price });
+      if (state.hasCream) modifiers.push({ modifierName: 'إضافات علوية', optionName: 'كريمة مخفوقة فاخرة', price: 0.75 });
+      state.syrups.forEach(s => modifiers.push({ modifierName: 'سيروب ونكهة', optionName: s.name, price: 0.75 }));
+      if (state.customDrinkItems) {
+        state.customDrinkItems.forEach(c => modifiers.push({ modifierName: 'مكون مخصص', optionName: c.name, price: c.price }));
+      }
+      if (state.pastry) modifiers.push({ modifierName: 'مخبوزات مرافقة', optionName: state.pastry.name, price: state.pastry.price });
+
+      // Build Order Object
+      const newOrder = {
+        id: `ord-${Date.now()}`,
+        tenantId: 'tenant-first',
+        orderNumber: orderNumber,
+        orderType: isTakeaway ? 'takeaway' : (orderPoint === 'سفري' ? 'takeaway' : 'dine_in'),
+        orderPointName: orderPoint,
+        customerName: custName,
+        customerPhone: custPhone,
+        items: [
+          {
+            productId: 'prod-custom-barista-drink',
+            productName: `مشروب باريستا مخصص (${state.currentStyleName || 'قهوة ومشروب مميز'})`,
+            quantity: 1,
+            unitPrice: total,
+            totalPrice: total,
+            selectedModifiers: modifiers,
+            notes: 'تم تصميمه تفاعلياً عبر Barista Pal Builder'
+          }
+        ],
+        status: 'pending',
+        subtotal: subtotal,
+        taxAmount: Number((subtotal * 0.14).toFixed(2)),
+        serviceAmount: 0,
+        total: total,
+        paymentStatus: 'unpaid',
+        createdAt: new Date().toISOString()
+      };
+
+      // Save into Smart Menu localStorage
+      try {
+        const key = 'smart_menu_orders_tenant-first';
+        const existing = JSON.parse(localStorage.getItem(key) || '[]');
+        const updated = [newOrder, ...existing];
+        localStorage.setItem(key, JSON.stringify(updated));
+        window.dispatchEvent(new Event('storage'));
+        if (window.opener) {
+          window.opener.postMessage({ type: 'SMART_MENU_NEW_ORDER', order: newOrder }, '*');
+        }
+      } catch (e) {
+        console.error('Failed to sync order', e);
+      }
+
+      // Display in UI
+      document.getElementById('order-success-number').innerText = `طلب رقم #${orderNumber}`;
+      document.getElementById('link-track-order').href = `/?tracking=${newOrder.id}`;
       document.getElementById('checkout-form-content').style.display = 'none';
       document.getElementById('checkout-success-content').style.display = 'block';
       playSound('bell');
@@ -1955,6 +2262,71 @@
       receiptWrap.classList.remove('active');
       resetBaristaState();
     });
+
+    /* =========================================================
+       DRINK STYLES & CUSTOM INGREDIENTS LOGIC
+       ========================================================= */
+    const stylePills = document.querySelectorAll('.style-pill');
+    stylePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        stylePills.forEach(p => p.classList.remove('active'));
+        pill.classList.add('active');
+        const style = pill.getAttribute('data-style');
+        state.currentStyle = style;
+        state.currentStyleName = pill.innerText;
+
+        if (style === 'hot') {
+          state.iceCount = 0;
+          showToast("وضع القهوة الساخنة: تم تفريغ الثلج! اسكب الإسبريسو والحليب الدافئ.");
+        } else if (style === 'iced') {
+          if (state.iceCount === 0) state.iceCount = 3;
+          showToast("وضع المشروبات المثلجة: تم إضافة مكعبات الثلج البلوري!");
+        } else if (style === 'matcha') {
+          showToast("وضع الماتشا الاحتفالية: اختر ماتشا أوجي مع حليب الشوفان أو اللوز.");
+        } else if (style === 'mojito') {
+          showToast("وضع الموهيتو المنعش: أضف الثلج، الكركديه أو الباشن، ولمسة الصودا الفوارة.");
+        } else if (style === 'frappe') {
+          showToast("وضع الفرابيه والميلك شيك: أضف السيروب المكثف والكريمة المخفوقة الغنية!");
+        }
+        renderAllFromState();
+      });
+    });
+
+    const modalCustomDrink = document.getElementById('modal-custom-drink');
+    const btnAddCustomDrink = document.getElementById('btn-add-custom-drink');
+    const btnCustomDrinkCancel = document.getElementById('btn-custom-drink-cancel');
+    const btnCustomDrinkSave = document.getElementById('btn-custom-drink-save');
+
+    if (btnAddCustomDrink) {
+      btnAddCustomDrink.addEventListener('click', () => {
+        modalCustomDrink.classList.add('show');
+        document.getElementById('custom-drink-name').focus();
+      });
+    }
+
+    if (btnCustomDrinkCancel) {
+      btnCustomDrinkCancel.addEventListener('click', () => {
+        modalCustomDrink.classList.remove('show');
+      });
+    }
+
+    if (btnCustomDrinkSave) {
+      btnCustomDrinkSave.addEventListener('click', () => {
+        const name = document.getElementById('custom-drink-name').value.trim();
+        const price = parseFloat(document.getElementById('custom-drink-price').value) || 1.00;
+        if (!name) return;
+
+        if (!state.customDrinkItems) state.customDrinkItems = [];
+        state.customDrinkItems.push({ name, price });
+
+        modalCustomDrink.classList.remove('show');
+        document.getElementById('custom-drink-name').value = '';
+
+        updateTotals();
+        showToast(`تمت إضافة ${name} إلى مشروبك بنجاح! ✨`);
+        playSound('pour');
+      });
+    }
 
     function resetBaristaState() {
       state = {

@@ -51,6 +51,8 @@ export default function AdminPage() {
     deleteProduct,
     toggleProductAvailability,
     updateStockQuantity,
+    addCategory,
+    deleteCategory,
     addTable,
     loadSampleMenuForTenant,
     clearTenantMenu,
@@ -108,6 +110,9 @@ export default function AdminPage() {
   const [newProdSpicy, setNewProdSpicy] = useState(false);
   const [newProdVegetarian, setNewProdVegetarian] = useState(false);
   const [newProdBestSeller, setNewProdBestSeller] = useState(false);
+  const [customCategoryName, setCustomCategoryName] = useState("");
+  const [newProdPrepTime, setNewProdPrepTime] = useState("10");
+  const [newProdCalories, setNewProdCalories] = useState("350");
 
   // New Table State
   const [newTableNumber, setNewTableNumber] = useState("");
@@ -183,11 +188,17 @@ export default function AdminPage() {
     e.preventDefault();
     if (!newProdName.trim() || !newProdPrice) return;
 
+    let finalCategoryId = newProdCategory;
+    if (newProdCategory === "NEW_CATEGORY" && customCategoryName.trim()) {
+      const newCat = addCategory(customCategoryName.trim());
+      finalCategoryId = newCat.id;
+    }
+
     addProduct({
       name: newProdName,
-      description: newProdDesc || "وجبة مميزة ومجهزة بعناية من أفضل المكونات الطازجة.",
+      description: newProdDesc || "صنف مميز ومجهز بعناية من أجود المكونات الطازجة.",
       price: parseFloat(newProdPrice),
-      categoryId: newProdCategory,
+      categoryId: finalCategoryId,
       stockQuantity: parseInt(newProdStock) || 20,
       image:
         newProdImage.trim() ||
@@ -196,13 +207,15 @@ export default function AdminPage() {
       isSpicy: newProdSpicy,
       isVegetarian: newProdVegetarian,
       isBestSeller: newProdBestSeller,
-      prepTimeMinutes: 10,
+      prepTimeMinutes: parseInt(newProdPrepTime) || 10,
+      calories: parseInt(newProdCalories) || 350,
     });
 
     setNewProdName("");
     setNewProdDesc("");
     setNewProdPrice("");
     setNewProdImage("");
+    setCustomCategoryName("");
     setIsAddingProduct(false);
   };
 
@@ -1066,6 +1079,7 @@ export default function AdminPage() {
                             {c.name}
                           </option>
                         ))}
+                        <option value="NEW_CATEGORY">+ إنشاء تصنيف جديد مخصص...</option>
                       </select>
                     </div>
                     <div className="space-y-1">
@@ -1079,6 +1093,20 @@ export default function AdminPage() {
                       />
                     </div>
                   </div>
+
+                  {newProdCategory === "NEW_CATEGORY" && (
+                    <div className="space-y-1 p-3 rounded-2xl bg-amber-50 border border-amber-200 animate-fadeIn">
+                      <label className="text-xs font-bold text-warm-text block">اسم التصنيف الجديد المراد إنشاؤه:</label>
+                      <input
+                        type="text"
+                        value={customCategoryName}
+                        onChange={(e) => setCustomCategoryName(e.target.value)}
+                        placeholder="مثال: عصائر فريش ومنعشة، بيتزا إيطالية، باستا، برجر وساندوتشات..."
+                        className="w-full px-3 py-2 rounded-xl bg-white border border-amber-300 text-xs text-warm-text focus:outline-none"
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-warm-text block">الوصف والمكونات:</label>

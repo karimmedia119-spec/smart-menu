@@ -40,6 +40,18 @@ export default function CustomerPage() {
   const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string | null>(null);
 
+  // Auto-open live tracker if ?tracking=orderId is passed in the URL (e.g. from Poke Pal or Barista Pal)
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const trackingId = params.get("tracking");
+      if (trackingId) {
+        setActiveTrackingOrderId(trackingId);
+      }
+    } catch (e) {}
+  }, []);
+
   const currency = activeTenant.branding.currency;
 
   // Filter products by category, search query, and dietary tags (Zero-Latency Amazon DNA)
