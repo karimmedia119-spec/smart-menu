@@ -3,11 +3,19 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { User, UserRole } from "../types";
 import { INITIAL_USERS } from "../lib/data";
+import {
+  createSessionToken,
+  verifyPassword,
+  checkRateLimit,
+  recordFailedAttempt,
+  resetRateLimit,
+} from "../lib/security";
 
 interface LoginResult {
   success: boolean;
   error?: string;
   user?: User;
+  remainingAttempts?: number;
 }
 
 interface RegisterParams {
@@ -85,12 +93,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, error: "يرجى إدخال كلمة المرور" };
     }
 
+    // Rate limiting: 5 attempts max
+    const rateCheck = checkRateLimit(normalizedEmail, 5, 15 * 60 * 1000);
+    if (!rateCheck.allowed) {
+      return {
+        success: false,
+        error: `تم إيقاف محاولات الدخول مؤقتاً لأسباب أمنية. يرجى المحاولة بعد ${Math.ceil(
+          rateCheck.retryAfterSeconds / 60
+        )} دقيقة.`,
+      };
+    }
+
     const foundUser = users.find((u) => u.email.toLowerCase() === normalizedEmail);
 
     if (!foundUser) {
+      const fail = recordFailedAttempt(normalizedEmail, 5);
       return {
         success: false,
         error: "بيانات الدخول غير صحيحة. يرجى التأكد من البريد الإلكتروني وكلمة المرور.",
+        remainingAttempts: Math.max(0, 5 - (fail.blocked ? 5 : 1)),
       };
     }
 
@@ -102,18 +123,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Verify password strictly against user account password
-    const validPasswords = [foundUser.password, "admin123456"].filter(Boolean);
-    if (!validPasswords.includes(cleanPassword)) {
+    const isMatch = foundUser.password === cleanPassword;
+    if (!isMatch) {
+      const fail = recordFailedAttempt(normalizedEmail, 5);
       return {
         success: false,
         error: "كلمة المرور غير صحيحة. يرجى التأكد من الرمز المدخل.",
+        remainingAttempts: Math.max(0, 5 - (fail.blocked ? 5 : 1)),
       };
     }
+
+    // Success - reset rate limits
+    resetRateLimit(normalizedEmail);
 
     // Login successful
     setCurrentUser(foundUser);
     try {
       localStorage.setItem(STORAGE_USER_KEY, foundUser.id);
+
+      // Create and set secure session token in cookies for Next.js middleware
+      createSessionToken({
+        userId: foundUser.id,
+        role: foundUser.role,
+        tenantId: foundUser.tenantId,
+      }).then((token) => {
+        document.cookie = `smart_menu_session=${token}; path=/; max-age=86400; SameSite=Lax`;
+      });
     } catch (e) {}
 
     return { success: true, user: foundUser };
@@ -201,6 +236,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
     try {
       localStorage.removeItem(STORAGE_USER_KEY);
+      document.cookie = "smart_menu_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     } catch (e) {}
   };
 

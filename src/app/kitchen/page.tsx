@@ -23,6 +23,7 @@ export default function KitchenPage() {
   } = useApp();
 
   const [filter, setFilter] = useState<"active" | "ready" | "all">("active");
+  const [stationFilter, setStationFilter] = useState<"all" | "food" | "drinks">("all");
   const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({});
   const [currentTime, setCurrentTime] = useState(Date.now());
 
@@ -34,15 +35,50 @@ export default function KitchenPage() {
 
   const tenantOrders = orders.filter((o) => o.tenantId === activeTenant.id);
 
+  const isDrinkOrder = (order: Order) => {
+    return order.items.some(
+      (item) =>
+        item.productId.includes("drink") ||
+        item.productId.includes("coffee") ||
+        item.productId.includes("prod-specialty") ||
+        item.productId.includes("barista") ||
+        item.productName.includes("قهوة") ||
+        item.productName.includes("شاي") ||
+        item.productName.includes("ماتشا") ||
+        item.productName.includes("موهيتو") ||
+        item.productName.includes("فرابيه") ||
+        item.productName.includes("لاتيه")
+    );
+  };
+
   const filteredOrders = tenantOrders.filter((order) => {
+    // Status filter
+    let matchesStatus = true;
     if (filter === "active") {
-      return order.status === "pending" || order.status === "preparing";
+      matchesStatus = order.status === "pending" || order.status === "preparing";
+    } else if (filter === "ready") {
+      matchesStatus = order.status === "ready";
+    } else {
+      matchesStatus = order.status !== "cancelled";
     }
-    if (filter === "ready") {
-      return order.status === "ready";
+
+    if (!matchesStatus) return false;
+
+    // Station filter
+    if (stationFilter === "drinks") {
+      return isDrinkOrder(order);
     }
-    return order.status !== "cancelled";
+    if (stationFilter === "food") {
+      return !isDrinkOrder(order) || order.items.some((i) => !isDrinkOrder({ ...order, items: [i] }));
+    }
+
+    return true;
   });
+
+  // Recent completed order for 1-click recall
+  const lastFinishedOrder = tenantOrders
+    .filter((o) => o.status === "ready" || o.status === "completed")
+    .sort((a, b) => new Date(b.completedAt || b.createdAt).getTime() - new Date(a.completedAt || a.createdAt).getTime())[0];
 
   const getElapsedMinutes = (order: Order) => {
     const start = new Date(order.prepStartedAt || order.createdAt).getTime();
@@ -105,8 +141,54 @@ export default function KitchenPage() {
             </div>
           </div>
 
-          {/* Filter Pills & Audio Test */}
-          <div className="flex items-center gap-2">
+          {/* Station Pills & Filter Pills & Audio Test */}
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Station Filter (Food vs Drinks vs All) */}
+            <div className="flex items-center bg-stone-100 p-1 rounded-2xl border border-warm-border text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setStationFilter("all")}
+                className={`px-2.5 py-1 rounded-xl transition-all ${
+                  stationFilter === "all" ? "bg-white text-stone-900 shadow-xs" : "text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                كافة المحطات
+              </button>
+              <button
+                type="button"
+                onClick={() => setStationFilter("food")}
+                className={`px-2.5 py-1 rounded-xl transition-all ${
+                  stationFilter === "food" ? "bg-amber-600 text-white shadow-xs" : "text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                🍽️ المطبخ
+              </button>
+              <button
+                type="button"
+                onClick={() => setStationFilter("drinks")}
+                className={`px-2.5 py-1 rounded-xl transition-all ${
+                  stationFilter === "drinks" ? "bg-teal-700 text-white shadow-xs" : "text-stone-500 hover:text-stone-800"
+                }`}
+              >
+                ☕ البار والمشروبات
+              </button>
+            </div>
+
+            {/* Undo / Recall Last Finished Ticket */}
+            {lastFinishedOrder && (
+              <button
+                type="button"
+                onClick={() => {
+                  updateOrderStatus(lastFinishedOrder.id, "preparing");
+                  playAlertSound("bell");
+                }}
+                className="px-3 py-1.5 rounded-xl bg-warm-surface hover:bg-amber-100 text-amber-900 border border-warm-border text-xs font-bold flex items-center gap-1 shadow-sm transition-all"
+                title="استرجاع آخر تذكرة مكتملة إلى قائمة التجهيز"
+              >
+                <span>↺ استرجاع #{lastFinishedOrder.orderNumber}</span>
+              </button>
+            )}
+
             <button
               onClick={() => playAlertSound("new_order")}
               className="p-2 rounded-xl bg-warm-surface hover:bg-stone-200 border border-warm-border text-warm-muted hover:text-warm-text text-xs flex items-center gap-1.5 transition-colors shadow-sm"
