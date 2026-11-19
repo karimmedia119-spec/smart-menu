@@ -15,6 +15,7 @@ import {
   Eye,
   EyeOff,
   AlertCircle,
+  Key,
 } from "lucide-react";
 
 export default function LoginPage() {
@@ -37,6 +38,12 @@ export default function LoginPage() {
   const [ownerPhone, setOwnerPhone] = useState("");
   const [businessType, setBusinessType] = useState<"restaurant" | "cafe" | "retail" | "pharmacy">("restaurant");
   const [regSuccess, setRegSuccess] = useState(false);
+
+  const handleQuickFill = (fillEmail: string, fillPass: string = "password123") => {
+    setEmail(fillEmail);
+    setPassword(fillPass);
+    setErrorMsg(null);
+  };
 
   // Manual Login Handler (NO auto login)
   const handleManualLogin = (e: React.FormEvent) => {
@@ -265,6 +272,79 @@ export default function LoginPage() {
                 )}
               </button>
             </form>
+
+            {/* Quick System Accounts Card (Image 1 Exact Match) */}
+            <div className="mt-6 pt-5 border-t border-warm-border text-right">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-bold text-warm-muted">كلمة المرور: password123</span>
+                <span className="text-xs font-black text-warm-text flex items-center gap-1.5">
+                  <Key className="w-3.5 h-3.5 text-warm-accent" />
+                  <span>بيانات حسابات النظام (للتجربة والاختبار):</span>
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {/* Super Admin */}
+                <div className="p-2.5 rounded-2xl bg-warm-bg border border-warm-border hover:border-purple-300 transition-colors flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill("superadmin@smartmenu.app", "password123")}
+                    className="px-3 py-1 rounded-xl bg-white hover:bg-stone-100 border border-warm-border text-xs font-bold text-warm-text shadow-2xs transition-transform active:scale-95"
+                  >
+                    تعبئة الحقول
+                  </button>
+                  <div className="text-right">
+                    <div className="text-xs font-black text-warm-text">مالك المنصة (Super Admin)</div>
+                    <div className="text-[11px] font-mono text-purple-700">superadmin@smartmenu.app</div>
+                  </div>
+                </div>
+
+                {/* Tenant Admin */}
+                <div className="p-2.5 rounded-2xl bg-warm-bg border border-warm-border hover:border-blue-300 transition-colors flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill("prince@smartmenu.app", "password123")}
+                    className="px-3 py-1 rounded-xl bg-white hover:bg-stone-100 border border-warm-border text-xs font-bold text-warm-text shadow-2xs transition-transform active:scale-95"
+                  >
+                    تعبئة الحقول
+                  </button>
+                  <div className="text-right">
+                    <div className="text-xs font-black text-warm-text">مدير المطعم (Tenant Admin)</div>
+                    <div className="text-[11px] font-mono text-blue-700">prince@smartmenu.app</div>
+                  </div>
+                </div>
+
+                {/* Cashier */}
+                <div className="p-2.5 rounded-2xl bg-warm-bg border border-warm-border hover:border-emerald-300 transition-colors flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill("cashier@smartmenu.app", "password123")}
+                    className="px-3 py-1 rounded-xl bg-white hover:bg-stone-100 border border-warm-border text-xs font-bold text-warm-text shadow-2xs transition-transform active:scale-95"
+                  >
+                    تعبئة الحقول
+                  </button>
+                  <div className="text-right">
+                    <div className="text-xs font-black text-warm-text">الكاشير (Cashier POS)</div>
+                    <div className="text-[11px] font-mono text-emerald-700">cashier@smartmenu.app</div>
+                  </div>
+                </div>
+
+                {/* Kitchen */}
+                <div className="p-2.5 rounded-2xl bg-warm-bg border border-warm-border hover:border-amber-300 transition-colors flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill("chef@smartmenu.app", "password123")}
+                    className="px-3 py-1 rounded-xl bg-white hover:bg-stone-100 border border-warm-border text-xs font-bold text-warm-text shadow-2xs transition-transform active:scale-95"
+                  >
+                    تعبئة الحقول
+                  </button>
+                  <div className="text-right">
+                    <div className="text-xs font-black text-warm-text">محطة التجهيز والمطبخ (Kitchen)</div>
+                    <div className="text-[11px] font-mono text-amber-700">chef@smartmenu.app</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div>

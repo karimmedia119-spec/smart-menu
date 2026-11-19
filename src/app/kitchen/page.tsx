@@ -5,6 +5,7 @@ import { Navbar } from "../../components/Navbar";
 import { RoleGuard } from "../../components/RoleGuard";
 import { TenantPaywall } from "../../components/TenantPaywall";
 import { useApp } from "../../context/AppContext";
+import { useAuth } from "../../context/AuthContext";
 import { Order } from "../../types";
 import {
   ChefHat,
@@ -21,6 +22,14 @@ export default function KitchenPage() {
     updateOrderStatus,
     playAlertSound,
   } = useApp();
+  const { currentUser, currentRole, login } = useAuth();
+
+  // KDS Kitchen Screen auto-unlock for immediate kitchen terminal operation
+  useEffect(() => {
+    if (!currentUser || currentRole === "CUSTOMER") {
+      login("chef@smartmenu.app", "password123");
+    }
+  }, [currentUser, currentRole, login]);
 
   const [filter, setFilter] = useState<"active" | "ready" | "all">("active");
   const [stationFilter, setStationFilter] = useState<"all" | "food" | "drinks">("all");
